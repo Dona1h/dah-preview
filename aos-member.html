@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>닿 × AOS — 회원 앱 (실데이터)</title>
+<style>
+:root{
+  --ink:#151b26;--sub:#667085;--soft:#98a2b3;--line:#e5e8ed;--bg:#f4f6f8;--white:#fff;
+  --blue:#1467d7;--blue-bg:#eaf3ff;--mint:#087f70;--mint-bg:#e8f7f4;
+  --coral:#e75b3b;--coral-bg:#fff0eb;--gold:#a96f13;--gold-bg:#fff6dc;
+  --violet:#6750b8;--violet-bg:#f0edff;--navy:#182233;
+  --shadow:0 18px 50px rgba(20,31,48,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:#e9edf2;color:var(--ink);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 0 40px}
+.demo-note{font-size:12px;color:var(--sub);margin-bottom:12px;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:7px 16px;text-align:center;max-width:360px}
+.demo-note b{color:var(--blue)}
+
+.phone{width:min(393px,100vw);background:var(--bg);border-radius:34px;box-shadow:var(--shadow);overflow:hidden;border:1px solid #dfe4ea}
+.statusbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:12px;font-weight:600}
+.viewport{height:min(740px,calc(100dvh - 118px));min-height:560px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.screens{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:10px 18px 28px;display:none;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:block}
+
+.appbar{display:flex;align-items:center;gap:10px;padding:8px 0 14px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.appbar h1{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.appbar p{font-size:11.5px;color:var(--sub);margin-top:1px}
+
+.notice{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);border-radius:13px;padding:10px 13px;margin-bottom:13px;font-size:12.5px}
+.notice .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);flex:none}
+.notice b{font-weight:600}
+.notice span{color:var(--soft);margin-left:auto;font-size:11px;flex:none}
+
+.sec-title{display:flex;align-items:baseline;gap:8px;margin:18px 2px 11px}
+.sec-title h2{font-size:15px;font-weight:700}
+.sec-title span{font-size:11.5px;color:var(--soft)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--soft);margin-bottom:8px}
+
+.pass{border-radius:20px;padding:18px;color:#fff;position:relative;overflow:hidden;margin-bottom:13px;
+  background:linear-gradient(135deg,#0e4ea6,#1467d7 55%,#3f8ce8);box-shadow:0 14px 30px rgba(20,103,215,.28)}
+.pass::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,255,255,.07) 46px 52px)}
+.pass *{position:relative;z-index:1}
+.pass .edition{font-size:10px;letter-spacing:1.6px;font-weight:700;opacity:.85}
+.pass .name{font-size:21px;font-weight:700;margin:10px 0 2px}
+.pass .meta{font-size:12px;opacity:.85}
+.pass .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:16px}
+.pass .lv{font-size:13px;font-weight:700}
+.pass .perks{font-size:11px;opacity:.85;margin-top:3px}
+.pass .qr{width:46px;height:46px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center}
+.pass .qr svg{width:34px;height:34px}
+
+.action{display:flex;align-items:center;gap:13px;background:var(--navy);border-radius:18px;padding:16px;color:#fff;margin-bottom:13px}
+.action .txt{flex:1}.action .eyebrow{color:#9fb0c8}
+.action h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.action p{font-size:11.5px;color:#aebdd2;line-height:1.45}
+.tagbtn{flex:none;width:62px;height:62px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(20,103,215,.45)}
+.action.done{background:var(--mint-bg);color:var(--ink)}
+.action.done .eyebrow{color:var(--mint)}.action.done p{color:var(--sub)}
+.action.done .tagbtn{background:var(--mint);box-shadow:none}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:13px 14px}
+.stat .label{font-size:11.5px;color:var(--sub);margin-bottom:6px}
+.stat .value{font-size:21px;font-weight:700}
+.stat .hint{font-size:11px;color:var(--soft);margin-top:3px}
+.stat.mint .value{color:var(--mint)}.stat.blue .value{color:var(--blue)}
+
+/* 재등록 레이더 (실 등록기간 규칙 반영) */
+.radar{background:linear-gradient(135deg,#fff7ed,#fff);border:1px solid #fcd9b6;border-radius:18px;padding:16px;margin-bottom:13px}
+.radar .top{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.radar .dday{font-size:11px;font-weight:800;color:#b45309;background:#fff0db;border-radius:99px;padding:4px 11px}
+.radar .top b{font-size:14px;font-weight:700}
+.radar .win{font-size:12px;color:#92691f;line-height:1.6;margin-bottom:11px}
+.radar .win b{font-weight:700;color:#7a5512}
+.radar-bar{display:flex;height:30px;border-radius:9px;overflow:hidden;font-size:9.5px;font-weight:700;margin-bottom:6px}
+.radar-bar div{display:flex;align-items:center;justify-content:center;color:#fff}
+.rb-new{background:#93c5fd}.rb-disc{background:#86efac;color:#14532d}.rb-mid{background:#cbd5e1;color:#475569}.rb-re{background:#fbbf24;color:#713f12}
+.radar-legend{font-size:10px;color:var(--soft);text-align:center}
+.radar .alarm{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.radar .alarm .sw{width:38px;height:22px;border-radius:99px;background:var(--mint);position:relative;flex:none;cursor:pointer}
+.radar .alarm .sw::after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+
+.coupon-strip{display:flex;align-items:center;gap:11px;background:var(--gold-bg);border:1px solid #f0e3bd;border-radius:16px;padding:13px 15px;margin-bottom:13px}
+.coupon-strip .ico{width:34px;height:34px;border-radius:10px;background:#fff;color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none}
+.coupon-strip b{font-size:13.5px}.coupon-strip p{font-size:11.5px;color:#8a6c2a;margin-top:2px}
+.coupon-strip .cnt{margin-left:auto;font-size:19px;font-weight:800;color:var(--gold)}
+
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--bg)}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--sub)}.kv b{font-weight:600}
+.kv b.disc{color:var(--blue)}.kv b.big{font-size:15px}
+
+.badge-disc{font-size:9.5px;font-weight:700;color:#166534;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;padding:2px 7px}
+
+.opt{border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer}
+.opt.on{border-color:var(--blue);background:var(--blue-bg)}
+.opt .ohead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.opt .ohead b{font-size:13.5px;font-weight:700}
+.opt .price{font-size:20px;font-weight:800}
+.opt .per{font-size:11px;color:var(--sub);margin-top:2px}
+.opt .break{font-size:11px;color:var(--sub);margin-top:7px;line-height:1.6}
+
+.journey{display:flex;justify-content:space-between;margin:6px 0}
+.jstep{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--soft);flex:1}
+.jstep .dot{width:25px;height:25px;border-radius:50%;background:var(--line);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.jstep.now .dot{background:var(--mint);color:#fff;box-shadow:0 0 0 4px var(--mint-bg)}
+.jstep.now{color:var(--mint);font-weight:700}.jstep.past .dot{background:var(--mint-bg);color:var(--mint)}
+
+.tl{position:relative;padding-left:20px}
+.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;padding-bottom:14px}.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;left:-18px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--white);border:2.5px solid var(--mint)}
+.tl-item h4{font-size:12.5px;font-weight:700}.tl-item p{font-size:11px;color:var(--sub);margin-top:2px}
+.tl-item .when{font-size:10px;color:var(--soft);margin-top:2px}
+
+.profile{display:flex;align-items:center;gap:13px;margin:6px 0 16px}
+.avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0e4ea6,#3f8ce8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex:none}
+.profile h2{font-size:17px;font-weight:700}.profile p{font-size:12px;color:var(--sub);margin-top:2px}
+.menu{background:var(--white);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:13px}
+.menu-item{display:flex;align-items:center;gap:11px;padding:14px 15px;border-bottom:1px solid var(--bg);font-size:13.5px;font-weight:500}
+.menu-item:last-child{border-bottom:none}
+.menu-item .mi{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.menu-item .arrow{margin-left:auto;color:var(--soft)}
+.mi.blue{background:var(--blue-bg);color:var(--blue)}.mi.mint{background:var(--mint-bg);color:var(--mint)}.mi.gold{background:var(--gold-bg);color:var(--gold)}.mi.violet{background:var(--violet-bg);color:var(--violet)}
+
+.nav{display:flex;background:var(--white);border-top:1px solid var(--line);padding:9px 6px calc(13px + env(safe-area-inset-bottom))}
+.nav button{flex:1;border:none;background:none;font-family:inherit;font-size:10.5px;color:var(--soft);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-weight:600}
+.nav button.active{color:var(--blue)}
+.nav .ic{width:23px;height:23px;display:flex;align-items:center;justify-content:center}
+.nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+.overlay{position:absolute;inset:0;background:rgba(13,20,32,.55);display:none;align-items:flex-end;z-index:30}
+.overlay.show{display:flex}
+.sheet{background:var(--white);border-radius:26px 26px 0 0;width:100%;padding:26px 22px calc(26px + env(safe-area-inset-bottom));animation:up .28s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet h3{font-size:17px;font-weight:700;margin:14px 0 6px;text-align:center}
+.sheet p{font-size:12.5px;color:var(--sub);line-height:1.6;text-align:center}
+.btn{display:block;width:100%;border:none;border-radius:13px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.blue{background:var(--blue);color:#fff}.btn.ghost{background:var(--white);border:1px solid var(--line);color:var(--ink)}
+.sheet .btn{margin-top:8px}
+.wave-stage{width:108px;height:108px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.wave-core{width:64px;height:64px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:800;position:relative;z-index:2}
+.wave-core.mint{background:var(--mint)}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--blue);opacity:0}
+.tagging .ring{animation:rip 1.6s ease-out infinite}.tagging .ring:nth-child(2){animation-delay:.5s}.tagging .ring:nth-child(3){animation-delay:1s}
+@keyframes rip{0%{transform:scale(.62);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+.src-tag{font-size:9px;font-weight:700;color:var(--mint);background:var(--mint-bg);border-radius:5px;padding:2px 6px;margin-left:auto}
+</style>
+</head>
+<body>
+
+<div class="demo-note"><b>AOS 회원용 닿 앱</b> · 가격·등록기간은 실제 AOS 운영 데이터 기준</div>
+
+<div class="phone">
+<div class="statusbar"><span>9:41</span><span>5G&nbsp;&nbsp;84%</span></div>
+<div class="viewport">
+<div class="screens">
+
+<!-- ───────── 홈 ───────── -->
+<section class="screen active" data-screen="home">
+  <div class="appbar">
+    <div class="logo">닿</div>
+    <div><h1>닿 <span style="font-weight:500;color:var(--sub)">Dah</span></h1>
+    <p>닿으면 쌓입니다 · AOS Art of Swimming</p></div>
+  </div>
+
+  <div class="notice"><span class="dot"></span><b>6월 셋째 주 자유수영 레인 조정 안내</b><span>공지</span></div>
+
+  <div class="pass">
+    <div class="edition">SWIM LANE · 성장 기록 회원증</div>
+    <div class="name">김보형</div>
+    <div class="meta">매일반 오전 (08–11시) · 2026.06.30까지</div>
+    <div class="row">
+      <div><div class="lv">LEVEL 2 · 초급</div><div class="perks">월 157,500원 · 오전 시간대 10% 적용 중</div></div>
+      <div class="qr"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="2" y="14" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="14" y="18.5" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="18.5" width="3.5" height="3.5" fill="#151b26"/></svg></div>
+    </div>
+  </div>
+
+  <div class="action" id="actionCard">
+    <div class="txt"><div class="eyebrow">TODAY'S NEXT ACTION</div>
+      <h3 id="actionTitle">입장 태그로 오늘 운동 시작</h3>
+      <p id="actionCopy">한 번 더 출석하면 10회 연속 보상이 열려요.</p></div>
+    <button class="tagbtn" id="tagOpen">태그</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat mint"><div class="label">연속 출석</div><div class="value" id="streakVal">9일</div><div class="hint">최고 14일</div></div>
+    <div class="stat blue"><div class="label">이번 달 출석</div><div class="value" id="monthVal">14회</div><div class="hint">매일반 · 6월</div></div>
+  </div>
+
+  <!-- 재등록 레이더 (AOS 실 등록기간 규칙) -->
+  <div class="sec-title"><h2>재등록 레이더</h2><span>AOS 등록 사이클 기준</span></div>
+  <div class="radar">
+    <div class="top"><span class="dday">D-4</span><b>재등록기간이 곧 열려요</b></div>
+    <div class="win">기존 회원 우선 재등록 <b>6/18 – 6/25</b><br>익월(7월) 1일 시작 · 정규가로 같은 반·시간 자리를 지킵니다.</div>
+    <div class="radar-bar">
+      <div class="rb-mid" style="flex:7">월중 11–17</div>
+      <div class="rb-re" style="flex:8">재등록 18–25</div>
+      <div class="rb-new" style="flex:5">신규 26–말</div>
+    </div>
+    <div class="radar-legend">오늘 6/14 · 월중등록기간 → 재등록기간(18일)까지 D-4</div>
+    <div class="alarm"><div class="sw" id="alarmSw"></div><span>6/18 오픈 알림 받기 — 자리 놓치지 않게</span></div>
+  </div>
+
+  <div class="coupon-strip">
+    <div class="ico">%</div>
+    <div><b>사용 가능 혜택</b><p>재등록 결제에 자동 추천</p></div>
+    <div class="cnt" id="couponCnt">2장</div>
+  </div>
+</section>
+
+<!-- ───────── 성장 ───────── -->
+<section class="screen" data-screen="grow">
+  <div class="appbar"><div><h1>성장</h1><p>닿으면 쌓입니다. 오늘의 방문이 운동 자산이 됩니다.</p></div></div>
+  <div class="card">
+    <div class="eyebrow">CURRENT RANK</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><h3 style="font-size:17px;font-weight:800">LEVEL 2 · 초급</h3>
+      <p style="font-size:12px;color:var(--sub);margin-top:3px">자유형 50m와 안정적인 호흡을 만들고 있어요.</p></div>
+      <div style="font-size:23px;font-weight:800;color:var(--mint)">68%</div>
+    </div>
+    <div class="journey" style="margin-top:14px">
+      <div class="jstep past"><div class="dot">1</div>입문</div>
+      <div class="jstep now"><div class="dot">2</div>초급</div>
+      <div class="jstep"><div class="dot">3</div>중급</div>
+      <div class="jstep"><div class="dot">4</div>상급</div>
+      <div class="jstep"><div class="dot">5</div>마스터즈</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">다음 레벨 조건</div>
+    <div class="kv"><span>승급 기준</span><b>누적 출석 60회 + 평가</b></div>
+    <div class="kv"><span>현재 누적</span><b id="totalAtt">58회</b></div>
+    <div class="kv"><span>나의 반</span><b>매일반 오전 (08–11시)</b></div>
+  </div>
+  <div class="sec-title"><h2>나의 운동 히스토리</h2><span>결제 이후 모든 성장 기록</span></div>
+  <div class="card"><div class="tl">
+    <div class="tl-item"><h4>초급 레벨 승급</h4><p>자유형 25m와 호흡 평가 통과 · 박현우 코치</p><div class="when">2026.03</div></div>
+    <div class="tl-item"><h4>매일반 전환 · 오전 시간대</h4><p>월수금 단과 → 매일반 (8–11시 10% 적용)</p><div class="when">2026.02</div></div>
+    <div class="tl-item"><h4>첫 등록과 전자 회원증 발급</h4><p>AOS 월수금 단과로 시작</p><div class="when">2025.11</div></div>
+  </div></div>
+</section>
+
+<!-- ───────── 혜택 ───────── -->
+<section class="screen" data-screen="benefit">
+  <div class="appbar"><div><h1>혜택</h1><p>출석 보상을 다음 등록에 바로 사용하세요.</p></div></div>
+
+  <div class="sec-title"><h2>재등록 옵션</h2><span class="src-tag" style="margin:0">AOS 실가격</span></div>
+
+  <div class="opt on" data-opt="3m" id="opt3m">
+    <div class="ohead"><b>3개월 약정 · 매일반 오전</b><span class="badge-disc">할인적용 ×0.9</span></div>
+    <div class="price">425,250원</div>
+    <div class="per">월 141,750원 · 7/1 시작</div>
+    <div class="break">정가 175,000 → 오전 10% → 157,500 → 3개월 약정 10% → <b style="color:var(--blue)">141,750/월</b><br>3개월 총액 425,250원 (정가 대비 −99,750원)</div>
+  </div>
+
+  <div class="opt" data-opt="1m" id="opt1m">
+    <div class="ohead"><b>1개월 정규 · 매일반 오전</b></div>
+    <div class="price">157,500원</div>
+    <div class="per">7/1 시작 · 오전 시간대 10% 적용</div>
+    <div class="break">정가 175,000 → 오전(8–11시) 10% → <b style="color:var(--blue)">157,500원</b></div>
+  </div>
+
+  <div class="card" style="margin-top:3px">
+    <div class="kv"><span>닿 레벨 적립 (LEVEL 2)</span><b class="disc">1.5% 적립</b></div>
+    <div class="kv"><span>3개월 선택 시 예상 적립</span><b class="disc" id="earnVal">6,378P</b></div>
+    <div class="kv"><span>보유 쿠폰</span><b>음료 1회 · 개근 10%</b></div>
+  </div>
+
+  <button class="btn blue" id="renewBtn" style="margin-top:6px">예상 결제금액 확인하기</button>
+
+  <div class="sec-title"><h2>내 쿠폰</h2><span>출석으로 획득</span></div>
+  <div class="card">
+    <div class="kv"><span>3개월 개근 10% 할인</span><b>재등록 상품 · ~08.31</b></div>
+    <div class="kv"><span>음료 무료 쿠폰</span><b>데스크 제시 · ~07.15</b></div>
+  </div>
+</section>
+
+<!-- ───────── 마이 ───────── -->
+<section class="screen" data-screen="my">
+  <div class="appbar"><div><h1>마이</h1><p>수강권과 기록, 설정을 한곳에서 관리합니다.</p></div></div>
+  <div class="profile">
+    <div class="avatar">보</div>
+    <div><h2>김보형</h2><p>@bohyung_swim · AOS · LEVEL 2</p></div>
+  </div>
+
+  <div class="sec-title"><h2>내 수강권</h2><span class="src-tag" style="margin:0">AOS 실데이터</span></div>
+  <div class="card">
+    <div class="kv"><span>프로그램</span><b>매일반 (주 6일)</b></div>
+    <div class="kv"><span>시간대</span><b>오전 08–11시</b></div>
+    <div class="kv"><span>월 수강료</span><b>157,500원 <span class="badge-disc">오전 −10%</span></b></div>
+    <div class="kv"><span>일할 단가</span><b>5,250원 / 일</b></div>
+    <div class="kv"><span>이용 기간</span><b>2026.06.01 – 06.30</b></div>
+    <div class="kv"><span>남은 기간</span><b style="color:var(--coral)">D-16</b></div>
+    <div class="kv"><span>담당 코치</span><b>박현우</b></div>
+  </div>
+
+  <div class="sec-title"><h2>AOS 프로그램·요금</h2><span>참고</span></div>
+  <div class="card">
+    <div class="kv"><span>매일반</span><b>175,000 <span style="color:var(--soft);font-weight:400">/ 오전·저녁 157,500</span></b></div>
+    <div class="kv"><span>월수금 단과</span><b>115,000 <span style="color:var(--soft);font-weight:400">/ 103,500</span></b></div>
+    <div class="kv"><span>화목토 단과</span><b>110,000 <span style="color:var(--soft);font-weight:400">/ 99,000</span></b></div>
+    <div class="kv"><span>아쿠아로빅</span><b>75,000 <span style="color:var(--soft);font-weight:400">/ 3개월 67,500</span></b></div>
+    <div class="kv"><span>오후 14시반</span><b>정가 −20% (3개월 중복 불가)</b></div>
+  </div>
+
+  <div class="menu">
+    <div class="menu-item"><div class="mi blue">✉</div>1:1 개인 문의<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi mint">₩</div>결제 · 등록 히스토리<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi gold">♥</div>추천 관심사 설정<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi violet">⚙</div>알림 · 공개 범위 설정<span class="arrow">›</span></div>
+  </div>
+</section>
+
+</div><!-- /screens -->
+
+<nav class="nav">
+  <button class="active" data-nav="home"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>홈</button>
+  <button data-nav="grow"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg></span>성장</button>
+  <button data-nav="benefit"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M3 11h18"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"/></svg></span>혜택</button>
+  <button data-nav="my"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></span>마이</button>
+</nav>
+</div><!-- /viewport -->
+
+<div class="overlay" id="tagModal"><div class="sheet">
+  <div class="wave-stage" id="waveStage"><span class="ring"></span><span class="ring"></span><span class="ring"></span><div class="wave-core" id="waveCore">닿</div></div>
+  <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
+  <p id="tagDesc">인식이 완료되면 출석과 운동 히스토리가<br>자동으로 기록됩니다.</p>
+  <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
+  <button class="btn ghost" data-close="tagModal">닫기</button>
+</div></div>
+
+<div class="overlay" id="rewardModal"><div class="sheet">
+  <div style="width:84px;height:84px;border-radius:24px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:34px;font-weight:800">10</div>
+  <h3>10일 연속 출석 달성</h3>
+  <p>오늘의 방문이 또 하나의 운동 기록이 됐어요.<br><b style="color:var(--gold)">자유수영 1회권</b>이 혜택 지갑에 발급됐습니다.</p>
+  <button class="btn blue" data-close="rewardModal">오늘 운동 시작하기</button>
+</div></div>
+
+<div class="overlay" id="renewModal"><div class="sheet" style="text-align:left">
+  <div class="eyebrow" style="color:var(--blue)">예상 결제금액 · 재등록기간 6/18 오픈</div>
+  <h3 style="margin-top:6px;text-align:left" id="renewTitle">3개월 약정 · 매일반 오전</h3>
+  <div class="card" style="margin-top:14px" id="renewBreak"></div>
+  <p style="text-align:left">6/18~25 재등록기간에 데스크에서 결제하면<br>같은 반·시간 자리가 7/1부터 그대로 이어집니다.</p>
+  <button class="btn blue" data-close="renewModal">6/18 오픈 알림 받기</button>
+  <button class="btn ghost" data-close="renewModal">닫기</button>
+</div></div>
+
+</div><!-- /phone -->
+
+<script>
+var screens=[].slice.call(document.querySelectorAll('.screen'));
+var navs=[].slice.call(document.querySelectorAll('[data-nav]'));
+function show(name){
+  screens.forEach(function(s){var on=s.dataset.screen===name;s.classList.toggle('active',on);if(on)s.scrollTop=0;});
+  navs.forEach(function(n){n.classList.toggle('active',n.dataset.nav===name);});
+}
+navs.forEach(function(n){n.addEventListener('click',function(){show(n.dataset.nav);});});
+document.querySelectorAll('[data-close]').forEach(function(x){x.addEventListener('click',function(){document.getElementById(x.dataset.close).classList.remove('show');});});
+
+document.getElementById('tagOpen').addEventListener('click',function(){
+  if(document.getElementById('actionCard').classList.contains('done'))return;
+  document.getElementById('tagModal').classList.add('show');
+});
+document.getElementById('alarmSw').addEventListener('click',function(){ this.style.background='#c9cfd8'; });
+
+/* 재등록 옵션 선택 (실가격) */
+var opts={
+  '3m':{ title:'3개월 약정 · 매일반 오전', rows:[
+    ['정가 (매일반)','175,000원'],['오전 시간대 −10%','157,500원'],['3개월 약정 −10%','141,750원 / 월'],
+    ['3개월 총액','<b class="big">425,250원</b>'],['닿 레벨 적립 (1.5%)','+6,378P'] ] },
+  '1m':{ title:'1개월 정규 · 매일반 오전', rows:[
+    ['정가 (매일반)','175,000원'],['오전 시간대 −10%','<b class="big">157,500원</b>'],['닿 레벨 적립 (1.5%)','+2,362P'] ] }
+};
+var curOpt='3m';
+document.querySelectorAll('[data-opt]').forEach(function(o){
+  o.addEventListener('click',function(){
+    document.querySelectorAll('[data-opt]').forEach(function(x){x.classList.remove('on');});
+    o.classList.add('on'); curOpt=o.dataset.opt;
+    document.getElementById('earnVal').textContent= curOpt==='3m'?'6,378P':'2,362P';
+  });
+});
+document.getElementById('renewBtn').addEventListener('click',function(){
+  var d=opts[curOpt];
+  document.getElementById('renewTitle').textContent=d.title;
+  document.getElementById('renewBreak').innerHTML=d.rows.map(function(r){
+    return '<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>';
+  }).join('');
+  document.getElementById('renewModal').classList.add('show');
+});
+
+/* 태그 → 출석 연출 */
+document.getElementById('simulate').addEventListener('click',function(){
+  var stage=document.getElementById('waveStage'); stage.classList.add('tagging');
+  document.getElementById('tagTitle').textContent='닿았습니다';
+  document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
+  setTimeout(function(){
+    document.getElementById('waveCore').classList.add('mint');
+    document.getElementById('tagTitle').textContent='오늘 출석 완료 · 09:42';
+    document.getElementById('tagDesc').innerHTML='운동 히스토리에 기록됐어요.<br>오늘도 잘 왔어요!';
+    setTimeout(function(){
+      document.getElementById('tagModal').classList.remove('show'); stage.classList.remove('tagging');
+      var a=document.getElementById('actionCard'); a.classList.add('done');
+      document.getElementById('actionTitle').textContent='오늘 출석 완료 · 09:42';
+      document.getElementById('actionCopy').textContent='운동 히스토리에 기록됐어요. 오늘도 잘 왔어요!';
+      document.getElementById('tagOpen').textContent='완료';
+      document.getElementById('streakVal').textContent='10일';
+      document.getElementById('monthVal').textContent='15회';
+      document.getElementById('couponCnt').textContent='3장';
+      document.getElementById('totalAtt').textContent='59회';
+      setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
+    },1100);
+  },1500);
+});
+</script>
+</body>
+</html>

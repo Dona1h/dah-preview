@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>닿 Dah — 1차 MVP 완성 목업</title>
+<style>
+:root{
+  --ink:#151b26;--sub:#667085;--soft:#98a2b3;--line:#e5e8ed;--bg:#f4f6f8;--white:#fff;
+  --blue:#1467d7;--blue-bg:#eaf3ff;--mint:#087f70;--mint-bg:#e8f7f4;
+  --coral:#e75b3b;--coral-bg:#fff0eb;--gold:#a96f13;--gold-bg:#fff6dc;
+  --violet:#6750b8;--violet-bg:#f0edff;--navy:#182233;
+  --shadow:0 18px 50px rgba(20,31,48,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:#e9edf2;color:var(--ink);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 0 40px}
+.demo-note{font-size:12px;color:var(--sub);margin-bottom:12px;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:7px 16px}
+.demo-note b{color:var(--blue);font-weight:600}
+
+.phone{width:min(393px,100vw);background:var(--bg);border-radius:34px;box-shadow:var(--shadow);overflow:hidden;position:relative;border:1px solid #dfe4ea}
+.statusbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:12px;font-weight:600;color:var(--ink)}
+.viewport{height:min(740px,calc(100dvh - 118px));min-height:560px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.screens{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:10px 18px 28px;display:none;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:block}
+
+.appbar{display:flex;align-items:center;gap:10px;padding:8px 0 14px}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.appbar h1{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.appbar p{font-size:11.5px;color:var(--sub);margin-top:1px}
+
+.notice{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);border-radius:13px;padding:10px 13px;margin-bottom:13px;font-size:12.5px}
+.notice .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);flex:none}
+.notice b{font-weight:600}
+.notice span{color:var(--soft);margin-left:auto;font-size:11px;flex:none}
+
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--soft);margin-bottom:8px}
+.sec-title{display:flex;align-items:baseline;gap:8px;margin:18px 2px 11px}
+.sec-title h2{font-size:15px;font-weight:700}
+.sec-title span{font-size:11.5px;color:var(--soft)}
+
+.pass{border-radius:20px;padding:18px;color:#fff;position:relative;overflow:hidden;margin-bottom:13px;
+  background:linear-gradient(135deg,#0e4ea6,#1467d7 55%,#3f8ce8);box-shadow:0 14px 30px rgba(20,103,215,.28)}
+.pass::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,255,255,.07) 46px 52px)}
+.pass *{position:relative;z-index:1}
+.pass .edition{font-size:10px;letter-spacing:1.6px;font-weight:700;opacity:.85}
+.pass .name{font-size:21px;font-weight:700;margin:10px 0 2px}
+.pass .meta{font-size:12px;opacity:.85}
+.pass .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:16px}
+.pass .lv{font-size:13px;font-weight:700}
+.pass .perks{font-size:11px;opacity:.85;margin-top:3px}
+.pass .qr{width:46px;height:46px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center}
+.pass .qr svg{width:34px;height:34px}
+
+.action{display:flex;align-items:center;gap:13px;background:var(--navy);border-radius:18px;padding:16px;color:#fff;margin-bottom:13px}
+.action .txt{flex:1}
+.action .eyebrow{color:#9fb0c8}
+.action h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.action p{font-size:11.5px;color:#aebdd2;line-height:1.45}
+.tagbtn{flex:none;width:62px;height:62px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(20,103,215,.45)}
+.action.done{background:var(--mint-bg);color:var(--ink)}
+.action.done .eyebrow{color:var(--mint)}
+.action.done p{color:var(--sub)}
+.action.done .tagbtn{background:var(--mint);box-shadow:none}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:13px 14px}
+.stat .label{font-size:11.5px;color:var(--sub);margin-bottom:6px}
+.stat .value{font-size:21px;font-weight:700}
+.stat .hint{font-size:11px;color:var(--soft);margin-top:3px}
+.stat.mint .value{color:var(--mint)}
+.stat.blue .value{color:var(--blue)}
+
+.coupon-strip{display:flex;align-items:center;gap:11px;background:var(--gold-bg);border:1px solid #f0e3bd;border-radius:16px;padding:13px 15px;margin-bottom:13px}
+.coupon-strip .ico{width:34px;height:34px;border-radius:10px;background:#fff;color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none}
+.coupon-strip b{font-size:13.5px}
+.coupon-strip p{font-size:11.5px;color:#8a6c2a;margin-top:2px}
+.coupon-strip .cnt{margin-left:auto;font-size:19px;font-weight:800;color:var(--gold)}
+
+.suggest{display:flex;gap:12px;align-items:flex-start;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:11px}
+.suggest .pin{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex:none}
+.suggest h4{font-size:13.5px;font-weight:700;margin-bottom:3px}
+.suggest p{font-size:11.5px;color:var(--sub);line-height:1.5}
+.suggest .go{margin-left:auto;align-self:center;color:var(--soft);font-size:18px;flex:none}
+.pin.gold{background:var(--gold-bg);color:var(--gold)}
+.pin.coral{background:var(--coral-bg);color:var(--coral)}
+
+.progress{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:9px 0 6px}
+.progress i{display:block;height:100%;border-radius:99px;background:var(--mint);transition:width .6s ease}
+.progress.gold i{background:var(--gold)}
+
+.rank-head{display:flex;justify-content:space-between;align-items:center}
+.rank-head .score{font-size:23px;font-weight:800;color:var(--mint)}
+.journey{display:flex;justify-content:space-between;margin:16px 2px 4px}
+.j-step{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;color:var(--soft);flex:1}
+.j-step .dot{width:26px;height:26px;border-radius:50%;background:var(--line);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.j-step.past .dot{background:var(--mint-bg);color:var(--mint)}
+.j-step.now .dot{background:var(--mint);color:#fff;box-shadow:0 0 0 4px var(--mint-bg)}
+.j-step.now{color:var(--mint);font-weight:700}
+
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--bg)}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--sub)}
+.kv b{font-weight:600}
+
+.tl{position:relative;padding-left:22px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;padding-bottom:16px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;left:-19.5px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--white);border:2.5px solid var(--mint)}
+.tl-item h4{font-size:13px;font-weight:700}
+.tl-item p{font-size:11.5px;color:var(--sub);margin-top:2px}
+.tl-item .when{font-size:10.5px;color:var(--soft);margin-top:3px}
+
+.wallet-hero{background:var(--navy);border-radius:18px;padding:18px;color:#fff;margin-bottom:13px}
+.wallet-hero .eyebrow{color:#9fb0c8}
+.wallet-hero .big{font-size:30px;font-weight:800}
+.wallet-hero .big small{font-size:13px;font-weight:500;color:#aebdd2;margin-left:6px}
+.wallet-hero p{font-size:11.5px;color:#aebdd2;margin-top:4px}
+
+.coupon{display:flex;gap:12px;align-items:center;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:11px}
+.coupon .badge{flex:none;width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.coupon h4{font-size:13.5px;font-weight:700}
+.coupon p{font-size:11.5px;color:var(--sub);margin-top:2px}
+.badge.gold{background:var(--gold-bg);color:var(--gold)}
+.badge.mint{background:var(--mint-bg);color:var(--mint)}
+.badge.violet{background:var(--violet-bg);color:var(--violet)}
+
+.renew{background:linear-gradient(135deg,#fff,var(--blue-bg));border:1px solid #cfe2f9;border-radius:18px;padding:16px;margin-bottom:13px}
+.renew h3{font-size:15px;font-weight:700;margin:6px 0 2px}
+.renew .desc{font-size:12px;color:var(--sub)}
+.renew .price{font-size:23px;font-weight:800;margin:10px 0 2px}
+.renew .saving{font-size:11.5px;color:var(--blue);font-weight:600;margin-bottom:12px}
+.btn{display:block;width:100%;border:none;border-radius:13px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.ghost{background:var(--white);border:1px solid var(--line);color:var(--ink)}
+
+.profile{display:flex;align-items:center;gap:13px;margin:6px 0 16px}
+.avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0e4ea6,#3f8ce8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex:none}
+.profile h2{font-size:17px;font-weight:700}
+.profile p{font-size:12px;color:var(--sub);margin-top:2px}
+.mystats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
+.mystat{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:11px;text-align:center}
+.mystat b{display:block;font-size:17px;font-weight:800}
+.mystat span{font-size:10.5px;color:var(--sub)}
+.menu{background:var(--white);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:13px}
+.menu-item{display:flex;align-items:center;gap:11px;padding:14px 15px;border-bottom:1px solid var(--bg);font-size:13.5px;font-weight:500;cursor:pointer}
+.menu-item:last-child{border-bottom:none}
+.menu-item .mi{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.menu-item .chip{margin-left:auto;font-size:10.5px;font-weight:700;background:var(--coral-bg);color:var(--coral);border-radius:99px;padding:3px 9px}
+.menu-item .arrow{margin-left:auto;color:var(--soft)}
+.menu-item .chip+.arrow{margin-left:8px}
+.mi.blue{background:var(--blue-bg);color:var(--blue)}
+.mi.mint{background:var(--mint-bg);color:var(--mint)}
+.mi.gold{background:var(--gold-bg);color:var(--gold)}
+.mi.violet{background:var(--violet-bg);color:var(--violet)}
+
+.nav{display:flex;background:var(--white);border-top:1px solid var(--line);padding:9px 6px calc(13px + env(safe-area-inset-bottom))}
+.nav button{flex:1;border:none;background:none;font-family:inherit;font-size:10.5px;color:var(--soft);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-weight:600}
+.nav button.active{color:var(--blue)}
+.nav .ic{width:23px;height:23px;display:flex;align-items:center;justify-content:center}
+.nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+.overlay{position:absolute;inset:0;background:rgba(13,20,32,.55);display:none;align-items:flex-end;z-index:30}
+.overlay.show{display:flex}
+.sheet{background:var(--white);border-radius:26px 26px 0 0;width:100%;padding:26px 22px calc(26px + env(safe-area-inset-bottom));text-align:center;animation:up .28s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet h3{font-size:17px;font-weight:700;margin:14px 0 6px}
+.sheet p{font-size:12.5px;color:var(--sub);line-height:1.6}
+.sheet .btn{margin-top:18px}
+.sheet .sub-btn{margin-top:9px}
+
+.wave-stage{width:108px;height:108px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.wave-core{width:64px;height:64px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:800;position:relative;z-index:2}
+.wave-core.mint{background:var(--mint)}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--blue);opacity:0}
+.tagging .ring{animation:rip 1.6s ease-out infinite}
+.tagging .ring:nth-child(2){animation-delay:.5s}
+.tagging .ring:nth-child(3){animation-delay:1s}
+@keyframes rip{0%{transform:scale(.62);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+.reward-art{width:84px;height:84px;border-radius:24px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:34px;font-weight:800}
+.confetti{font-size:11px;letter-spacing:3px;color:var(--gold);font-weight:700;margin-top:10px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="demo-note"><b>닿 1차 MVP 완성 버전</b> · 홈의 태그 버튼을 눌러 출석 흐름을 체험하세요</div>
+
+<div class="phone">
+<div class="statusbar"><span>9:41</span><span>5G&nbsp;&nbsp;84%</span></div>
+<div class="viewport">
+<div class="screens">
+
+<!-- ───────── 홈 ───────── -->
+<section class="screen active" data-screen="home">
+  <div class="appbar">
+    <div class="logo">닿</div>
+    <div><h1>닿 <span style="font-weight:500;color:var(--sub)">Dah</span></h1>
+    <p>닿으면 쌓입니다 · Art of Swimming, Golders Green</p></div>
+  </div>
+
+  <div class="notice"><span class="dot"></span><b>6월 자유수영 예약 정책 안내</b><span>공지</span></div>
+
+  <div class="pass">
+    <div class="edition">SWIM LANE · 성장 기록 회원증</div>
+    <div class="name">김보형</div>
+    <div class="meta">성인 수영 월수금 · 2026.06.30까지</div>
+    <div class="row">
+      <div><div class="lv">LEVEL 2 · 초급</div><div class="perks">상시 2% 할인 · 1.5% 적립</div></div>
+      <div class="qr"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="2" y="14" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="14" y="18.5" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="18.5" width="3.5" height="3.5" fill="#151b26"/></svg></div>
+    </div>
+  </div>
+
+  <div class="action" id="actionCard">
+    <div class="txt">
+      <div class="eyebrow">TODAY'S NEXT ACTION</div>
+      <h3 id="actionTitle">입장 태그로 오늘 운동 시작</h3>
+      <p id="actionCopy">한 번 더 출석하면 10회 연속 보상이 열려요.</p>
+    </div>
+    <button class="tagbtn" id="tagOpen">태그</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat mint"><div class="label">연속 출석</div><div class="value" id="streakVal">9일</div><div class="hint">최고 14일</div></div>
+    <div class="stat blue"><div class="label">이번 달 출석</div><div class="value" id="monthVal">8회</div><div class="hint" id="monthHint">목표까지 4회</div></div>
+  </div>
+
+  <div class="coupon-strip">
+    <div class="ico">%</div>
+    <div><b>사용 가능 혜택</b><p>재등록 결제에 자동 추천</p></div>
+    <div class="cnt" id="couponCnt">2장</div>
+  </div>
+
+  <div class="sec-title"><h2>지금 하면 좋은 것</h2><span>규칙 기반 추천</span></div>
+
+  <div class="suggest" id="challengeCard">
+    <div class="pin gold">10</div>
+    <div><h4>10회 연속 출석 챌린지</h4><p id="challengeCopy">다음 출석에서 자유수영 1회권 획득 · 9/10</p>
+    <div class="progress gold" style="margin-bottom:0"><i id="challengeBar" style="width:90%"></i></div></div>
+  </div>
+
+  <div class="suggest" data-go="benefit">
+    <div class="pin coral">D-24</div>
+    <div><h4>만료 D-24 · 혜택 포함 재등록 확인</h4><p>현재 레벨 할인과 보유 쿠폰을 함께 계산했어요.</p></div>
+    <div class="go">›</div>
+  </div>
+</section>
+
+<!-- ───────── 성장 ───────── -->
+<section class="screen" data-screen="grow">
+  <div class="appbar"><div><h1>성장</h1><p>닿으면 쌓입니다. 오늘의 방문이 운동 자산이 됩니다.</p></div></div>
+
+  <div class="card">
+    <div class="eyebrow">CURRENT RANK</div>
+    <div class="rank-head">
+      <div><h3 style="font-size:17px;font-weight:800">LEVEL 2 · 초급</h3>
+      <p style="font-size:12px;color:var(--sub);margin-top:3px">자유형 50m와 안정적인 호흡을 만들고 있어요.</p></div>
+      <div class="score">68%</div>
+    </div>
+    <div class="progress"><i style="width:68%"></i></div>
+    <div class="journey">
+      <div class="j-step past"><div class="dot">1</div>입문</div>
+      <div class="j-step now"><div class="dot">2</div>초급</div>
+      <div class="j-step"><div class="dot">3</div>중급</div>
+      <div class="j-step"><div class="dot">4</div>상급</div>
+      <div class="j-step"><div class="dot">5</div>마스터즈</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">다음 레벨 조건</div>
+    <div class="kv"><span>승급 기준</span><b>누적 출석 60회 + 중급 평가</b></div>
+    <div class="kv"><span>현재 누적</span><b id="totalAtt">58회</b></div>
+    <div class="kv"><span>승급 시 에디션</span><b style="color:var(--violet)">PURPLE CURRENT</b></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">초급 회원 혜택</div>
+    <div class="kv"><span>상시 할인</span><b>2%</b></div>
+    <div class="kv"><span>적립</span><b>1.5%</b></div>
+    <div class="kv"><span>레벨 인정</span><b>코치 승급 승인제</b></div>
+  </div>
+
+  <div class="sec-title"><h2>나의 운동 히스토리</h2><span>결제 이후 모든 성장 기록</span></div>
+  <div class="card"><div class="tl">
+    <div class="tl-item"><h4>초급 레벨 승급</h4><p>자유형 25m와 호흡 평가 통과 · 박현우 코치</p><div class="when">2026.03</div></div>
+    <div class="tl-item"><h4>연속 출석 최고 기록 14일</h4><p>꾸준함 배지와 자유수영 쿠폰 획득</p><div class="when">2026.02</div></div>
+    <div class="tl-item"><h4>첫 등록과 전자 회원증 발급</h4><p>닿 운동 히스토리 시작</p><div class="when">2025.11</div></div>
+  </div></div>
+</section>
+
+<!-- ───────── 혜택 ───────── -->
+<section class="screen" data-screen="benefit">
+  <div class="appbar"><div><h1>혜택</h1><p>출석 보상을 다음 등록에 바로 사용하세요.</p></div></div>
+
+  <div class="wallet-hero">
+    <div class="eyebrow">DAH REWARD WALLET</div>
+    <div class="big" id="walletBig">2<small>사용 가능한 쿠폰</small></div>
+    <p>출석으로 획득 · 등록 결제에 자동 추천</p>
+  </div>
+
+  <div class="sec-title"><h2>내 쿠폰</h2><span>가장 유리한 조합 추천</span></div>
+  <div class="coupon"><div class="badge gold">10%</div>
+    <div><h4>3개월 개근 10% 할인</h4><p>재등록 상품 · 2026.08.31까지</p></div></div>
+  <div class="coupon"><div class="badge mint">1회</div>
+    <div><h4>음료 무료 쿠폰</h4><p>센터 데스크 제시 · 2026.07.15까지</p></div></div>
+  <div class="coupon hidden" id="newCoupon"><div class="badge violet">1회</div>
+    <div><h4>자유수영 1회권</h4><p>10회 연속 출석 보상 · 방금 발급</p></div></div>
+
+  <div class="sec-title"><h2>레벨 결제 혜택</h2><span>지정 상품 자동 적용</span></div>
+  <div class="card">
+    <div class="kv"><span>LEVEL 2 · 초급</span><b>2% 할인 · 1.5% 적립</b></div>
+    <div class="kv"><span>3개월권 380,000원 기준</span><b>7,600원 할인 · 5,586P</b></div>
+  </div>
+
+  <div class="sec-title"><h2>추천 재등록</h2><span>현재 반 그대로 연장</span></div>
+  <div class="renew">
+    <div class="eyebrow" style="color:var(--blue)">RENEWAL · D-24</div>
+    <h3>성인 수영 월수금 · 3개월</h3>
+    <div class="desc">2026.07.01부터 이어서 연장</div>
+    <div class="price">380,000원</div>
+    <div class="saving">초급 2% 할인 + 1.5% 적립 + 보유 쿠폰 적용 가능</div>
+    <button class="btn blue" id="renewOpen">예상 결제금액 확인하기</button>
+  </div>
+</section>
+
+<!-- ───────── 마이 ───────── -->
+<section class="screen" data-screen="my">
+  <div class="appbar"><div><h1>마이</h1><p>수강권과 기록, 설정을 한곳에서 관리합니다.</p></div></div>
+
+  <div class="profile">
+    <div class="avatar">보</div>
+    <div><h2>김보형</h2><p>@bohyung_swim · LEVEL 2 초급</p></div>
+  </div>
+
+  <div class="mystats">
+    <div class="mystat"><b id="myAtt">58</b><span>누적 출석</span></div>
+    <div class="mystat"><b>14</b><span>최고 연속</span></div>
+    <div class="mystat"><b id="myCoupon">2</b><span>보유 쿠폰</span></div>
+  </div>
+
+  <div class="sec-title"><h2>내 수강권</h2><span></span></div>
+  <div class="card">
+    <div class="kv"><span>프로그램</span><b>성인 수영 월수금 09:00</b></div>
+    <div class="kv"><span>이용 기간</span><b>2026.04.01 – 06.30</b></div>
+    <div class="kv"><span>남은 기간</span><b style="color:var(--coral)">D-24</b></div>
+    <div class="kv"><span>담당 코치</span><b>박현우</b></div>
+  </div>
+
+  <div class="sec-title"><h2>설정과 지원</h2><span></span></div>
+  <div class="menu">
+    <div class="menu-item"><div class="mi blue">✉</div>1:1 개인 문의<span class="chip">답변 1</span><span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi mint">₩</div>결제 · 등록 히스토리<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi gold">♥</div>추천 관심사 설정<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi violet">⚙</div>알림 · 공개 범위 설정<span class="arrow">›</span></div>
+    <div class="menu-item"><div class="mi blue">ⓘ</div>센터 이용 안내<span class="arrow">›</span></div>
+  </div>
+  <p style="font-size:10.5px;color:var(--soft);text-align:center;margin-top:4px">코치 콘텐츠와 오수완 앨범은 다음 업데이트에서 열립니다.</p>
+</section>
+
+</div><!-- /screens -->
+
+<nav class="nav">
+  <button class="active" data-nav="home"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>홈</button>
+  <button data-nav="grow"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><path d="M5 15l4-4 3 3 6-7"/></svg></span>성장</button>
+  <button data-nav="benefit"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M3 11h18"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"/></svg></span>혜택</button>
+  <button data-nav="my"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></span>마이</button>
+</nav>
+</div><!-- /viewport -->
+
+<!-- 태그 시트 -->
+<div class="overlay" id="tagModal"><div class="sheet">
+  <div class="wave-stage" id="waveStage"><span class="ring"></span><span class="ring"></span><span class="ring"></span><div class="wave-core" id="waveCore">닿</div></div>
+  <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
+  <p id="tagDesc">인식이 완료되면 출석과 운동 히스토리가<br>자동으로 기록됩니다.</p>
+  <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
+  <button class="btn ghost sub-btn" data-close="tagModal">닫기</button>
+</div></div>
+
+<!-- 보상 시트 -->
+<div class="overlay" id="rewardModal"><div class="sheet">
+  <div class="reward-art">10</div>
+  <div class="confetti">··· 달성 ···</div>
+  <h3>10일 연속 출석 달성</h3>
+  <p>오늘의 방문이 또 하나의 운동 기록이 됐어요.<br><b style="color:var(--gold)">자유수영 1회권</b>이 혜택 지갑에 발급됐습니다.</p>
+  <button class="btn blue" data-close="rewardModal">오늘 운동 시작하기</button>
+</div></div>
+
+<!-- 재등록 시트 -->
+<div class="overlay" id="renewModal"><div class="sheet" style="text-align:left">
+  <div class="eyebrow" style="color:var(--blue)">예상 결제금액</div>
+  <h3 style="margin-top:6px">성인 수영 월수금 · 3개월</h3>
+  <div class="card" style="margin-top:14px">
+    <div class="kv"><span>정가</span><b>380,000원</b></div>
+    <div class="kv"><span>초급 상시 할인 2%</span><b style="color:var(--blue)">-7,600원</b></div>
+    <div class="kv"><span>3개월 개근 쿠폰 10%</span><b style="color:var(--blue)">-37,240원</b></div>
+    <div class="kv"><span>예상 적립</span><b style="color:var(--mint)">+5,027P</b></div>
+    <div class="kv"><span style="font-weight:700;color:var(--ink)">예상 결제금액</span><b style="font-size:16px">335,160원</b></div>
+  </div>
+  <p style="text-align:left">재등록은 센터 데스크에서 결제할 수 있어요.<br>결제가 확인되면 수강권이 자동으로 이어집니다.</p>
+  <button class="btn blue" data-close="renewModal">데스크 결제 안내 확인</button>
+  <button class="btn ghost sub-btn" data-close="renewModal">닫기</button>
+</div></div>
+
+</div><!-- /phone -->
+
+<script>
+const screens=[...document.querySelectorAll('.screen')];
+const navs=[...document.querySelectorAll('[data-nav]')];
+function show(name){
+  screens.forEach(s=>{const on=s.dataset.screen===name;s.classList.toggle('active',on);if(on)s.scrollTop=0});
+  navs.forEach(n=>n.classList.toggle('active',n.dataset.nav===name));
+}
+navs.forEach(n=>n.addEventListener('click',()=>show(n.dataset.nav)));
+document.querySelectorAll('[data-go]').forEach(x=>x.addEventListener('click',()=>show(x.dataset.go)));
+document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>document.getElementById(x.dataset.close).classList.remove('show')));
+document.getElementById('tagOpen').addEventListener('click',()=>{
+  if(document.getElementById('actionCard').classList.contains('done'))return;
+  document.getElementById('tagModal').classList.add('show');
+});
+document.getElementById('renewOpen').addEventListener('click',()=>document.getElementById('renewModal').classList.add('show'));
+
+document.getElementById('simulate').addEventListener('click',()=>{
+  const stage=document.getElementById('waveStage');
+  stage.classList.add('tagging');
+  document.getElementById('tagTitle').textContent='닿았습니다';
+  document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
+  setTimeout(()=>{
+    document.getElementById('waveCore').classList.add('mint');
+    document.getElementById('tagTitle').textContent='오늘 출석 완료 · 09:42';
+    document.getElementById('tagDesc').innerHTML='운동 히스토리에 기록됐어요.<br>오늘도 잘 왔어요!';
+    setTimeout(()=>{
+      document.getElementById('tagModal').classList.remove('show');
+      stage.classList.remove('tagging');
+      applyAttendance();
+      setTimeout(()=>document.getElementById('rewardModal').classList.add('show'),250);
+    },1100);
+  },1500);
+});
+
+function applyAttendance(){
+  const a=document.getElementById('actionCard');
+  a.classList.add('done');
+  document.getElementById('actionTitle').textContent='오늘 출석 완료 · 09:42';
+  document.getElementById('actionCopy').textContent='운동 히스토리에 기록됐어요. 오늘도 잘 왔어요!';
+  document.getElementById('tagOpen').textContent='완료';
+  document.getElementById('streakVal').textContent='10일';
+  document.getElementById('monthVal').textContent='9회';
+  document.getElementById('monthHint').textContent='목표까지 3회';
+  document.getElementById('couponCnt').textContent='3장';
+  document.getElementById('challengeCopy').textContent='자유수영 1회권 발급 완료 · 10/10 달성';
+  document.getElementById('challengeBar').style.width='100%';
+  document.getElementById('walletBig').innerHTML='3<small>사용 가능한 쿠폰</small>';
+  document.getElementById('newCoupon').classList.remove('hidden');
+  document.getElementById('totalAtt').textContent='59회';
+  document.getElementById('myAtt').textContent='59';
+  document.getElementById('myCoupon').textContent='3';
+}
+</script>
+</body>
+</html>

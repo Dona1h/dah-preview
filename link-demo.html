@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>닿 연동 데모 — 어드민 정책 → 회원 앱</title>
+<style>
+:root{
+  --ink:#151b26;--sub:#667085;--soft:#98a2b3;--line:#e5e8ed;--bg:#f4f6f8;--white:#fff;
+  --blue:#1467d7;--blue-bg:#eaf3ff;--mint:#087f70;--mint-bg:#e8f7f4;
+  --coral:#e75b3b;--coral-bg:#fff0eb;--gold:#a96f13;--gold-bg:#fff6dc;
+  --violet:#6750b8;--violet-bg:#f0edff;--navy:#182233;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:#e9edf2;color:var(--ink);padding:18px}
+.head{max-width:1080px;margin:0 auto 16px;text-align:center}
+.head h1{font-size:18px;font-weight:800}
+.head p{font-size:12.5px;color:var(--sub);margin-top:5px;line-height:1.6}
+.centerbar{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.centerbar select{border:1px solid var(--line);border-radius:11px;padding:8px 13px;font-size:13px;font-family:inherit;font-weight:600;background:var(--white)}
+
+.stage{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 70px 393px;gap:0;align-items:start}
+
+/* ── 어드민 (좌) ── */
+.admin{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.admin .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--navy);background:var(--bg);border-radius:99px;padding:5px 11px;margin-bottom:12px}
+.admin h2{font-size:15px;font-weight:800;margin-bottom:3px}
+.admin .sub{font-size:11.5px;color:var(--soft);margin-bottom:14px}
+.layer-lbl{font-size:10.5px;font-weight:700;color:var(--blue);background:var(--blue-bg);border-radius:6px;padding:2px 8px;margin-left:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px}
+th{font-size:10.5px;color:var(--soft);font-weight:600;text-align:left;padding:6px 7px;border-bottom:1px solid var(--line)}
+td{padding:7px;border-bottom:1px solid var(--bg)}
+tr:last-child td{border-bottom:none}
+tr.active-lv{background:var(--mint-bg)}
+tr.active-lv td:first-child{border-radius:8px 0 0 8px}
+.lvtag{font-size:9.5px;font-weight:700;color:var(--mint);margin-left:5px}
+td input{border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-size:12px;font-family:inherit;text-align:right;width:100%;background:var(--white)}
+td input.name{text-align:left}
+td input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+.note{font-size:11px;color:var(--soft);line-height:1.6;margin:10px 0 16px}
+.sect{font-size:12.5px;font-weight:700;margin:16px 0 9px;display:flex;align-items:center}
+.theme-row{display:flex;gap:9px}
+.theme-opt{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;text-align:center}
+.theme-opt.on{border-color:var(--blue);background:var(--blue-bg)}
+.theme-opt .sw{height:30px;border-radius:8px;margin-bottom:7px}
+.theme-opt b{font-size:11.5px;font-weight:700;display:block}
+.theme-opt span{font-size:10px;color:var(--soft)}
+.theme-opt .cost{font-size:9.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border-radius:5px;padding:1px 6px;display:inline-block;margin-top:4px}
+.brand-row{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12px;color:var(--sub)}
+.brand-row input[type=color]{width:38px;height:30px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;padding:2px}
+
+/* ── 동기화 화살표 (중) ── */
+.sync{display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:120px;gap:8px}
+.sync .arrow{font-size:22px;color:var(--blue)}
+.sync .lbl{font-size:9.5px;color:var(--soft);text-align:center;line-height:1.5;font-weight:600}
+.sync .pulse{width:10px;height:10px;border-radius:50%;background:var(--mint)}
+.sync.flash .pulse{animation:pp .6s ease}
+.sync.flash .arrow{animation:slide .6s ease}
+@keyframes pp{0%{transform:scale(1);opacity:1}50%{transform:scale(2.2);opacity:.5}100%{transform:scale(1);opacity:1}}
+@keyframes slide{0%{transform:translateX(-6px)}50%{transform:translateX(6px)}100%{transform:translateX(0)}}
+
+/* ── 회원 앱 (우) ── */
+.phone{width:393px;background:var(--bg);border-radius:30px;border:1px solid #dfe4ea;overflow:hidden;box-shadow:0 18px 50px rgba(20,31,48,.14)}
+.statusbar{display:flex;justify-content:space-between;padding:11px 20px 3px;font-size:11px;font-weight:600}
+.pv{padding:8px 16px 18px;max-height:620px;overflow-y:auto}
+.appbar{display:flex;align-items:center;gap:9px;padding:6px 0 12px}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.appbar h3{font-size:15px;font-weight:700}
+.appbar p{font-size:10.5px;color:var(--sub);margin-top:1px}
+.read-tag{font-size:9px;font-weight:700;color:var(--mint);background:var(--mint-bg);border-radius:5px;padding:2px 6px;margin-left:auto}
+
+.pass{border-radius:18px;padding:17px;color:#fff;position:relative;overflow:hidden;margin-bottom:12px}
+.pass::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 42px,rgba(255,255,255,.06) 42px 48px)}
+.pass>*{position:relative;z-index:1}
+.pass .edition{font-size:9.5px;letter-spacing:1.4px;font-weight:700;opacity:.85}
+.pass .name{font-size:19px;font-weight:700;margin:9px 0 2px}
+.pass .meta{font-size:11px;opacity:.85}
+.pass .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:14px}
+.pass .lv{font-size:12.5px;font-weight:700}
+.pass .perks{font-size:10.5px;opacity:.9;margin-top:3px}
+.pass .qr{width:40px;height:40px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center}
+.pass .qr svg{width:30px;height:30px}
+.flashcard{animation:cardpulse .6s ease}
+@keyframes cardpulse{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+
+.sec{font-size:13px;font-weight:700;margin:16px 2px 9px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:15px;padding:14px}
+.kv{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--bg)}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--sub)}.kv b{font-weight:600}
+.kv b.hl{color:var(--blue)}
+.journey{display:flex;justify-content:space-between;margin:6px 0}
+.jstep{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9.5px;color:var(--soft);flex:1}
+.jstep .dot{width:24px;height:24px;border-radius:50%;background:var(--line);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.jstep.now .dot{background:var(--mint);color:#fff;box-shadow:0 0 0 3px var(--mint-bg)}
+.jstep.now{color:var(--mint);font-weight:700}
+.jstep.past .dot{background:var(--mint-bg);color:var(--mint)}
+.renew{background:linear-gradient(135deg,#fff,var(--blue-bg));border:1px solid #cfe2f9;border-radius:15px;padding:14px;margin-top:12px}
+.renew .ttl{font-size:13.5px;font-weight:700}
+.renew .price{font-size:20px;font-weight:800;margin:8px 0 2px}
+.renew .saving{font-size:11px;color:var(--blue);font-weight:600}
+
+@media(max-width:1000px){.stage{grid-template-columns:1fr}.sync{flex-direction:row;padding:14px 0}.sync .arrow{transform:rotate(90deg)}.phone{width:100%;max-width:393px;margin:0 auto}}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:12px;font-weight:600;border-radius:99px;padding:10px 20px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>닿 표준 구조 × 업체별 값 — 실시간 연동</h1>
+  <p>왼쪽 어드민에서 <b>레벨·할인·카드 디자인</b>을 바꾸면, 오른쪽 회원 앱이 그 값을 읽어 즉시 반영합니다.<br>구조(틀)는 닿 표준 고정 · 값과 디자인만 업체별로 흐릅니다 (08 문서 Layer 0/1/2).</p>
+  <div class="centerbar">
+    <select id="centerSel">
+      <option value="a">Art of Swimming, Golders Green</option>
+      <option value="b">헤엄 스튜디오 합정</option>
+    </select>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- 어드민 -->
+  <div class="admin">
+    <span class="tag">닿 ADMIN · 정책 설정</span>
+    <h2>레벨 체계 <span class="layer-lbl">Layer 1 · 업체 설정</span></h2>
+    <div class="sub" id="adminSub">값을 직접 수정하세요 — 회원 앱에 바로 반영됩니다</div>
+    <table>
+      <thead><tr><th>레벨</th><th>이름</th><th>기준(회)</th><th>할인%</th><th>적립%</th></tr></thead>
+      <tbody id="lvRows"></tbody>
+    </table>
+    <div class="note">⬆ 회색 강조 행 = 현재 회원(<b id="memberName">김보형</b>)의 레벨. 이 행의 이름·할인·적립을 바꾸면 오른쪽 회원증이 즉시 갱신됩니다.</div>
+
+    <div class="sect">회원 카드 디자인 <span class="layer-lbl">Layer 2 · 유료 커스텀</span></div>
+    <div class="theme-row">
+      <div class="theme-opt on" data-theme="default">
+        <div class="sw" id="swDefault"></div>
+        <b>닿 기본 에디션</b><span>구독 포함 · 무료</span>
+      </div>
+      <div class="theme-opt" data-theme="custom">
+        <div class="sw" id="swCustom"></div>
+        <b>업체 전용 디자인</b><span>닿에 의뢰</span><div class="cost">제작비 발생</div>
+      </div>
+    </div>
+    <div class="brand-row">
+      <span>브랜드 컬러 (주 액션)</span>
+      <input type="color" id="brandColor" value="#1467d7">
+      <span style="font-size:11px" id="brandHex">#1467d7</span>
+    </div>
+  </div>
+
+  <!-- 동기화 -->
+  <div class="sync" id="syncBox">
+    <div class="pulse"></div>
+    <div class="arrow">→</div>
+    <div class="lbl">구글시트<br>동기화<br>gasRead<br>(getPolicy)</div>
+  </div>
+
+  <!-- 회원 앱 -->
+  <div class="phone">
+    <div class="statusbar"><span>9:41</span><span>5G&nbsp;84%</span></div>
+    <div class="pv">
+      <div class="appbar">
+        <div class="logo">닿</div>
+        <div><h3>닿 <span style="font-weight:500;color:var(--sub)">Dah</span></h3><p id="mCenterName">Art of Swimming, Golders Green</p></div>
+        <span class="read-tag">Layer 1 읽음</span>
+      </div>
+
+      <div class="pass" id="passCard">
+        <div class="edition" id="mEdition">SWIM LANE · 성장 기록 회원증</div>
+        <div class="name" id="mName">김보형</div>
+        <div class="meta" id="mProg">성인 수영 월수금 · 2026.06.30까지</div>
+        <div class="row">
+          <div><div class="lv" id="mLevel">LEVEL 2 · 초급</div><div class="perks" id="mPerks">상시 2% 할인 · 1.5% 적립</div></div>
+          <div class="qr"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="2" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="2" y="14" width="8" height="8" rx="1.5" fill="#151b26"/><rect x="14" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="14" width="3.5" height="3.5" fill="#151b26"/><rect x="14" y="18.5" width="3.5" height="3.5" fill="#151b26"/><rect x="18.5" y="18.5" width="3.5" height="3.5" fill="#151b26"/></svg></div>
+        </div>
+      </div>
+
+      <div class="sec">성장</div>
+      <div class="card">
+        <div class="journey" id="mJourney"></div>
+      </div>
+
+      <div class="sec">혜택 — 레벨 결제 혜택</div>
+      <div class="card">
+        <div class="kv"><span id="mBenefitLv">LEVEL 2 · 초급</span><b id="mBenefitRate">2% 할인 · 1.5% 적립</b></div>
+        <div class="kv"><span>3개월권 <span id="mPrice">380,000</span>원 기준</span><b class="hl" id="mCalc">7,600원 할인 · 5,586P</b></div>
+      </div>
+
+      <div class="renew">
+        <div class="ttl">추천 재등록 · 현재 반 연장</div>
+        <div class="price" id="mRenewPrice">372,400원</div>
+        <div class="saving" id="mRenewSaving">정가 380,000원 − 레벨 할인 적용</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var DOW=['일','월','화','수','목','금','토'];
+/* 업체별 정책 + 회원 페르소나 (어드민이 소유하는 Layer 1 값) */
+var CENTERS={
+  a:{ name:'Art of Swimming, Golders Green',
+    member:{ name:'김보형', prog:'성인 수영 월수금 · 2026.06.30까지', level:2, price:380000 },
+    levels:[
+      {nm:'입문',att:0,dc:0,e:1,ed:'FIRST WAVE'},
+      {nm:'초급',att:20,dc:2,e:1.5,ed:'SWIM LANE'},
+      {nm:'중급',att:60,dc:3,e:2,ed:'PURPLE CURRENT'},
+      {nm:'상급',att:120,dc:5,e:3,ed:'RACING STRIPE'},
+      {nm:'마스터즈',att:200,dc:8,e:5,ed:'MASTERS GOLD'}
+    ],
+    brand:'#1467d7',
+    themes:{
+      default:'linear-gradient(135deg,#0e4ea6,#1467d7 55%,#3f8ce8)',
+      custom:'linear-gradient(135deg,#0c6b5a,#11947d 50%,#cf9b32)'
+    }
+  },
+  b:{ name:'헤엄 스튜디오 합정',
+    member:{ name:'이도윤', prog:'새벽 자유형 클리닉 · 2026.07.31까지', level:2, price:480000 },
+    levels:[
+      {nm:'물결',att:0,dc:0,e:1,ed:'RIPPLE'},
+      {nm:'파도',att:25,dc:3,e:2,ed:'WAVE'},
+      {nm:'너울',att:80,dc:5,e:3,ed:'SWELL'},
+      {nm:'대양',att:160,dc:10,e:5,ed:'OCEAN'}
+    ],
+    brand:'#0e7490',
+    themes:{
+      default:'linear-gradient(135deg,#0e4ea6,#1467d7 55%,#3f8ce8)',
+      custom:'linear-gradient(135deg,#06324a,#0e7490 55%,#22b8cf)'
+    }
+  }
+};
+var C=CENTERS.a, theme='default';
+
+function fmt(n){ return n.toLocaleString(); }
+function flashSync(){
+  var s=document.getElementById('syncBox'); s.classList.remove('flash'); void s.offsetWidth; s.classList.add('flash');
+  var card=document.getElementById('passCard'); card.classList.remove('flashcard'); void card.offsetWidth; card.classList.add('flashcard');
+}
+
+/* 어드민 테이블 렌더 (편집 가능) */
+function renderAdmin(){
+  document.getElementById('memberName').textContent=C.member.name;
+  document.getElementById('lvRows').innerHTML=C.levels.map(function(l,i){
+    var active=(i+1)===C.member.level;
+    return '<tr class="'+(active?'active-lv':'')+'" data-i="'+i+'">'
+      +'<td><b>LV'+(i+1)+'</b>'+(active?'<span class="lvtag">회원</span>':'')+'</td>'
+      +'<td><input class="name" data-f="nm" value="'+l.nm+'"></td>'
+      +'<td><input data-f="att" value="'+l.att+'"></td>'
+      +'<td><input data-f="dc" value="'+l.dc+'"></td>'
+      +'<td><input data-f="e" value="'+l.e+'"></td></tr>';
+  }).join('');
+  document.querySelectorAll('#lvRows input').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var tr=inp.closest('tr'); var i=+tr.dataset.i; var f=inp.dataset.f;
+      C.levels[i][f]= f==='nm'? inp.value : (parseFloat(inp.value)||0);
+      renderMember(); flashSync();
+    });
+  });
+  // 테마/브랜드
+  document.getElementById('swDefault').style.background=C.themes.default;
+  document.getElementById('swCustom').style.background=C.themes.custom;
+  document.getElementById('brandColor').value=C.brand;
+  document.getElementById('brandHex').textContent=C.brand;
+}
+
+/* 회원 앱 렌더 (어드민 값을 읽기만 함) */
+function renderMember(){
+  var L=C.levels[C.member.level-1];
+  document.getElementById('mCenterName').textContent='닿으면 쌓입니다 · '+C.name;
+  document.getElementById('mName').textContent=C.member.name;
+  document.getElementById('mProg').textContent=C.member.prog;
+  document.getElementById('mEdition').textContent=L.ed+' · 성장 기록 회원증';
+  document.getElementById('mLevel').textContent='LEVEL '+C.member.level+' · '+L.nm;
+  document.getElementById('mPerks').textContent='상시 '+L.dc+'% 할인 · '+L.e+'% 적립';
+  document.getElementById('mBenefitLv').textContent='LEVEL '+C.member.level+' · '+L.nm;
+  document.getElementById('mBenefitRate').textContent=L.dc+'% 할인 · '+L.e+'% 적립';
+  var price=C.member.price;
+  var discount=Math.round(price*L.dc/100);
+  var points=Math.round((price-discount)*L.e/100);
+  document.getElementById('mPrice').textContent=fmt(price);
+  document.getElementById('mCalc').textContent=fmt(discount)+'원 할인 · '+fmt(points)+'P';
+  document.getElementById('mRenewPrice').textContent=fmt(price-discount)+'원';
+  document.getElementById('mRenewSaving').textContent='정가 '+fmt(price)+'원 − '+L.nm+' '+L.dc+'% 할인';
+  // 카드 디자인 (Layer 2)
+  var bg = theme==='custom' ? C.themes.custom : 'linear-gradient(135deg,'+shade(C.brand,-30)+','+C.brand+' 55%,'+shade(C.brand,40)+')';
+  document.getElementById('passCard').style.background=bg;
+  // 성장 여정 (레벨 수 = 업체별)
+  document.getElementById('mJourney').innerHTML=C.levels.map(function(l,i){
+    var cls = (i+1)<C.member.level?'past':(i+1)===C.member.level?'now':'';
+    return '<div class="jstep '+cls+'"><div class="dot">'+(i+1)+'</div>'+l.nm+'</div>';
+  }).join('');
+}
+
+/* HEX 음영 (브랜드 컬러로 카드 그라데이션 생성) */
+function shade(hex,amt){
+  var h=hex.replace('#',''); var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt));
+  return '#'+[r,g,b].map(function(x){return ('0'+x.toString(16)).slice(-2);}).join('');
+}
+
+document.querySelectorAll('.theme-opt').forEach(function(o){
+  o.addEventListener('click',function(){
+    document.querySelectorAll('.theme-opt').forEach(function(x){x.classList.remove('on');});
+    o.classList.add('on'); theme=o.dataset.theme; renderMember(); flashSync();
+    toast(theme==='custom'?'업체 전용 카드 디자인 적용 (Layer 2 · 유료 의뢰분)':'닿 기본 에디션 (구독 포함)');
+  });
+});
+document.getElementById('brandColor').addEventListener('input',function(){
+  C.brand=this.value; document.getElementById('brandHex').textContent=this.value;
+  if(theme==='default') renderMember(); flashSync();
+});
+document.getElementById('centerSel').addEventListener('change',function(){
+  C=CENTERS[this.value]; theme='default';
+  document.querySelectorAll('.theme-opt').forEach(function(x){x.classList.toggle('on',x.dataset.theme==='default');});
+  renderAdmin(); renderMember();
+  toast(C.name+' — 레벨 체계('+C.levels.length+'단계)·가격·회원이 모두 분리되어 로드됨');
+});
+
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2600);}
+
+renderAdmin(); renderMember();
+</script>
+</body>
+</html>

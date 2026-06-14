@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>닿 admin ver.GS — 샘플 (PAB index 패턴 기반)</title>
+<style>
+:root{
+  --ink:#151b26;--sub:#667085;--soft:#98a2b3;--line:#e5e8ed;--bg:#f4f6f8;--white:#fff;
+  --blue:#1467d7;--blue-bg:#eaf3ff;--mint:#087f70;--mint-bg:#e8f7f4;
+  --coral:#e75b3b;--coral-bg:#fff0eb;--gold:#a96f13;--gold-bg:#fff6dc;
+  --violet:#6750b8;--violet-bg:#f0edff;--navy:#182233;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ── PIN overlay (PAB 패턴) ── */
+#pin-overlay{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:100}
+#pin-overlay.hide{display:none}
+.pin-box{text-align:center;color:#fff;width:300px}
+.pin-box .logo{width:52px;height:52px;border-radius:15px;background:#fff;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 16px}
+.pin-box h1{font-size:18px;font-weight:700}
+.pin-box .sub{font-size:12px;color:#9fb0c8;margin-top:4px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:24px 0}
+.pin-dots i{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.2)}
+.pin-dots i.on{background:#fff}
+.pin-msg{font-size:12px;min-height:16px;color:var(--coral)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:18px}
+.keypad button{aspect-ratio:1.5;border:none;border-radius:13px;background:rgba(255,255,255,.1);color:#fff;font-size:19px;font-weight:600;cursor:pointer;font-family:inherit}
+.keypad button:active{background:rgba(255,255,255,.25)}
+.keypad button.fn{font-size:14px;color:#9fb0c8}
+.pin-hint{font-size:11px;color:#6b7d94;margin-top:16px}
+
+/* ── 셸 (PAB .app-shell) ── */
+.app-shell{display:flex;min-height:100vh}
+.app-shell.hide{display:none}
+.sidebar{width:220px;background:var(--navy);color:#fff;padding:18px 14px;flex:none;display:flex;flex-direction:column}
+.sidebar .badge{font-size:10px;font-weight:700;letter-spacing:1px;color:#9fb0c8;background:rgba(255,255,255,.08);border-radius:99px;padding:5px 11px;align-self:flex-start}
+.sidebar .brand{margin:14px 6px 6px}
+.sidebar .brand h1{font-size:18px;font-weight:800}
+.sidebar .brand p{font-size:11px;color:#9fb0c8;margin-top:2px}
+.center-pick{margin:14px 0 8px}
+.center-pick select{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:10px;padding:9px 10px;font-size:12.5px;font-family:inherit;font-weight:600}
+.center-pick select option{color:var(--ink)}
+.nav{margin-top:8px;display:flex;flex-direction:column;gap:3px}
+.nav-btn{display:flex;align-items:center;gap:10px;border:none;background:none;color:#c3cede;font-family:inherit;font-size:13px;font-weight:600;text-align:left;padding:11px 12px;border-radius:11px;cursor:pointer}
+.nav-btn .ic{width:18px;text-align:center}
+.nav-btn:hover{background:rgba(255,255,255,.06)}
+.nav-btn.active{background:var(--blue);color:#fff}
+.nav-btn .n{margin-left:auto;font-size:10px;font-weight:800;background:var(--coral);color:#fff;border-radius:99px;padding:1px 7px}
+.sync{margin-top:auto;font-size:10.5px;color:#6b7d94;padding:10px 8px 0;line-height:1.5}
+.sync b{color:#9fb0c8;font-weight:600}
+.sync .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mint);margin-right:5px}
+
+.screen{flex:1;overflow-y:auto;max-height:100vh}
+.screen-panel{display:none;padding:22px 26px 50px;max-width:1000px}
+.screen-panel.active{display:block}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.topbar h2{font-size:18px;font-weight:800}
+.topbar .date-chip{margin-left:auto;font-size:11.5px;color:var(--sub);background:var(--white);border:1px solid var(--line);border-radius:99px;padding:6px 13px}
+
+/* ── 공통 카드/표 (닿 토큰) ── */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.kpi .label{font-size:11.5px;color:var(--sub)}
+.kpi .value{font-size:24px;font-weight:800;margin-top:5px}
+.kpi .hint{font-size:11px;color:var(--soft);margin-top:3px}
+.kpi.mint .value{color:var(--mint)}.kpi.coral .value{color:var(--coral)}.kpi.gold .value{color:var(--gold)}.kpi.blue .value{color:var(--blue)}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:17px 19px;margin-bottom:15px}
+.panel h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.panel .desc{font-size:11.5px;color:var(--soft);font-weight:400;margin-left:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-size:11px;color:var(--soft);font-weight:600;text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
+td{padding:10px 9px;border-bottom:1px solid var(--bg);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.nm{font-weight:700}.ph{color:var(--sub);font-size:11.5px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:99px;padding:4px 10px}
+.st i{width:6px;height:6px;border-radius:50%;display:inline-block}
+.st.linked{background:var(--mint-bg);color:var(--mint)}.st.linked i{background:var(--mint)}
+.st.pending{background:var(--gold-bg);color:var(--gold)}.st.pending i{background:var(--gold)}
+.st.expired{background:var(--bg);color:var(--soft)}.st.expired i{background:var(--soft)}
+.risk{font-size:10.5px;font-weight:700;color:var(--coral)}
+.btn{border:none;border-radius:10px;padding:9px 15px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.blue{background:var(--blue);color:#fff}.btn.ghost{background:var(--white);border:1px solid var(--line);color:var(--sub)}
+.btn.sm{padding:6px 12px;font-size:11.5px}
+.rule{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg);font-size:12.5px}
+.rule:last-child{border-bottom:none}
+.rule .right{margin-left:auto;display:flex;gap:7px;align-items:center}
+.rule input{width:52px;border:1px solid var(--line);border-radius:8px;padding:5px 7px;font-size:12px;font-family:inherit;text-align:right}
+.policy-table input{width:60px;border:1px solid var(--line);border-radius:8px;padding:5px 7px;font-size:12px;font-family:inherit;text-align:right}
+.prog-days{display:flex;gap:3px}
+.prog-days i{font-style:normal;font-size:10px;font-weight:700;width:19px;height:19px;border-radius:6px;background:var(--bg);color:var(--soft);display:flex;align-items:center;justify-content:center}
+.prog-days i.on{background:var(--blue-bg);color:var(--blue)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:12.5px;font-weight:600;border-radius:99px;padding:11px 22px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:60;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.banner{background:var(--blue-bg);border:1px solid #cfe2f9;border-radius:14px;padding:12px 15px;font-size:12.5px;color:#0e4ea6;margin-bottom:15px;line-height:1.6}
+.banner b{font-weight:700}
+@media(max-width:760px){.app-shell{flex-direction:column}.sidebar{width:auto}.nav{flex-direction:row;overflow-x:auto}.sync{display:none}.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.screen-panel{padding:18px}}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PIN OVERLAY (PAB 패턴) ══════════ -->
+<div id="pin-overlay">
+  <div class="pin-box">
+    <div class="logo">닿</div>
+    <h1>닿 admin</h1>
+    <div class="sub" id="pin-center">Art of Swimming, Golders Green</div>
+    <div class="pin-dots"><i></i><i></i><i></i><i></i></div>
+    <div class="pin-msg" id="pin-msg"></div>
+    <div class="keypad" id="keypad">
+      <button>1</button><button>2</button><button>3</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>7</button><button>8</button><button>9</button>
+      <button class="fn" data-k="del">지움</button><button>0</button><button class="fn" data-k="ok">✓</button>
+    </div>
+    <div class="pin-hint">샘플 PIN: <b>1234</b> (대표) · 매니저별 PIN은 admin에서 등록</div>
+  </div>
+</div>
+
+<!-- ══════════ APP SHELL ══════════ -->
+<div class="app-shell hide" id="shell">
+  <aside class="sidebar">
+    <span class="badge">DAH ADMIN · ver.GS</span>
+    <div class="brand"><h1>닿 admin</h1><p>업체 전용 운영 공간</p></div>
+    <div class="center-pick">
+      <select id="centerSel">
+        <option value="a">Art of Swimming, Golders Green</option>
+        <option value="b">헤엄 스튜디오 합정</option>
+      </select>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-screen="dash"><span class="ic">▤</span>대시보드</button>
+      <button class="nav-btn" data-screen="link"><span class="ic">👥</span>회원·연결<span class="n" id="navReviewN">2</span></button>
+      <button class="nav-btn" data-screen="hist"><span class="ic">📖</span>회원 히스토리</button>
+      <button class="nav-btn" data-screen="prog"><span class="ic">📅</span>시간표·정책</button>
+    </nav>
+    <div class="sync">
+      <span class="dot"></span><b>구글 시트 동기화</b><br>
+      <span id="syncState">연결됨 · 방금 동기화</span>
+    </div>
+  </aside>
+
+  <main class="screen">
+    <!-- ① 대시보드 -->
+    <section class="screen-panel active" data-panel="dash">
+      <div class="topbar"><h2>대시보드</h2><span class="date-chip" id="todayChip"></span></div>
+      <div class="banner">💡 이 샘플은 <b>PAB index 패턴</b>(단일 HTML + PIN 인증 + 구글시트 동기화 + localStorage 캐시)을 닿 어드민에 적용한 것입니다. 빌드·서버 없이 GitHub Pages에 올려 바로 씁니다.</div>
+      <div class="kpis">
+        <div class="kpi blue"><div class="label">오늘 출석</div><div class="value" id="kToday">86</div><div class="hint" id="kTodayHint">정규반 92%</div></div>
+        <div class="kpi mint"><div class="label">연결 완료</div><div class="value" id="kLinked">286</div><div class="hint" id="kRate">전체 412명의 69%</div></div>
+        <div class="kpi gold"><div class="label">만료 임박</div><div class="value" id="kExpiring">23</div><div class="hint">D-14 이내</div></div>
+        <div class="kpi coral"><div class="label">확인 필요</div><div class="value" id="kReview">2</div><div class="hint">연결 승인 대기</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>👀 이번 주 살펴볼 회원</h3><table><tbody id="watchRows"></tbody></table></div>
+        <div class="panel"><h3>📌 오늘 할 일</h3>
+          <div class="rule"><b>연결 승인 대기</b><div class="right"><span class="desc" id="todoReview">2건</span><button class="btn ghost sm" data-goto="link">처리</button></div></div>
+          <div class="rule"><b>승급 후보</b><div class="right"><span class="desc">누적 출석 도달 3명</span><button class="btn ghost sm" data-goto="hist">검토</button></div></div>
+          <div class="rule"><b>만료 D-7</b><div class="right"><span class="desc">9명 · 발송됨</span><button class="btn ghost sm" data-goto="link">목록</button></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② 회원·연결 -->
+    <section class="screen-panel" data-panel="link">
+      <div class="topbar"><h2>회원 · 연결</h2><span class="date-chip">전화번호 매칭 + 승인 큐</span></div>
+      <div class="panel"><h3>확인 필요 <span class="desc">가입 정보가 명부와 달라요 — 대조 후 승인</span></h3><div id="reviewList"></div></div>
+      <div class="panel"><h3>회원 목록 <span class="desc">행 클릭 → 히스토리</span></h3>
+        <table><thead><tr><th>회원</th><th>프로그램</th><th>수강권</th><th>앱 연결</th></tr></thead><tbody id="memberRows"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ③ 회원 히스토리 -->
+    <section class="screen-panel" data-panel="hist">
+      <div class="topbar"><h2>회원 히스토리</h2><span class="date-chip">1순위 가치 · 결제 이후 모든 기록</span></div>
+      <div class="panel">
+        <div style="display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0e4ea6,#3f8ce8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700" id="hAv">보</div>
+          <div><div style="font-size:16px;font-weight:800" id="hName">김보형</div><div style="font-size:12px;color:var(--sub);margin-top:2px" id="hMeta"></div></div>
+          <div style="margin-left:auto;display:flex;gap:18px" id="hStats"></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>수강권 이력 — 등록·재등록 체인</h3><div id="hChain"></div></div>
+        <div class="panel"><h3>성장 타임라인</h3><div id="hTl"></div></div>
+      </div>
+    </section>
+
+    <!-- ④ 시간표·정책 -->
+    <section class="screen-panel" data-panel="prog">
+      <div class="topbar"><h2>시간표 · 정책</h2><span class="date-chip" id="progCenter"></span></div>
+      <div class="panel"><h3>프로그램 구성 <span class="desc">출석 판정·수강권의 기준</span></h3>
+        <table><thead><tr><th>프로그램</th><th>요일</th><th>시간</th><th>정원</th><th>가격(월)</th></tr></thead><tbody id="progRows"></tbody></table>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>레벨 체계 <span class="desc">업체 설정값</span></h3>
+          <table class="policy-table"><thead><tr><th>레벨</th><th>이름</th><th>기준(회)</th><th>할인%</th><th>적립%</th></tr></thead><tbody id="lvRows"></tbody></table>
+        </div>
+        <div class="panel"><h3>저장 <span class="desc">구글시트로 동기화</span></h3>
+          <p style="font-size:11.5px;color:var(--sub);line-height:1.6;margin-bottom:12px">정책 변경은 다음 발급분부터 적용됩니다. 저장 시 <code>gasWrite('savePolicy')</code>로 구글시트에 기록되고, 회원 앱은 이 값을 읽어 표시합니다.</p>
+          <button class="btn blue" id="savePolicy">정책 저장 (동기화)</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════
+   DAH.config — GAS 연결 (PAB index ver.GS 패턴)
+   실제 배포 시 닿 전용 Apps Script endpoint·토큰으로 교체
+   ════════════════════════════════════════════════ */
+var DAH = {
+  config: {
+    gasUrl:   'https://script.google.com/macros/s/REPLACE_WITH_DAH_DEPLOYMENT_ID/exec',
+    gasToken: 'dah backup ver.gs'   // 공백 포함 — encodeURIComponent 필수
+  }
+};
+
+/* localStorage 헬퍼 (PAB.ls_get/ls_set 패턴) */
+DAH.ls_get = function(k, fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } };
+DAH.ls_set = function(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+
+/* JSONP 읽기 (PAB.gasRead 패턴) — 8초 타임아웃 */
+DAH.gasRead = function(action){
+  return new Promise(function(resolve){
+    var cb = 'dah_cb_' + Date.now() + Math.floor(Math.random()*1000);
+    var done = false;
+    var s = document.createElement('script');
+    var to = setTimeout(function(){ if(!done){ done=true; cleanup(); resolve(null); } }, 8000);
+    function cleanup(){ try{ delete window[cb]; }catch(e){ window[cb]=undefined; } if(s.parentNode) s.parentNode.removeChild(s); clearTimeout(to); }
+    window[cb] = function(data){ if(done) return; done=true; cleanup(); resolve(data); };
+    s.src = DAH.config.gasUrl + '?action=' + encodeURIComponent(action)
+          + '&token=' + encodeURIComponent(DAH.config.gasToken)
+          + '&callback=' + cb;
+    s.onerror = function(){ if(!done){ done=true; cleanup(); resolve(null); } };
+    document.body.appendChild(s);
+  });
+};
+/* POST 쓰기 (PAB.gasWrite 패턴) — fire-and-forget */
+DAH.gasWrite = function(action, data){
+  try{
+    var fd = new FormData();
+    fd.append('action', action);
+    fd.append('token', DAH.config.gasToken);
+    fd.append('data', JSON.stringify(data||{}));
+    fetch(DAH.config.gasUrl, { method:'POST', body:fd, mode:'no-cors' });
+  }catch(e){}
+};
+
+/* ── 캐시 wipe 마커 (PAB 패턴) — endpoint 바뀌면 V만 bump ── */
+(function(){
+  var MK='dah-admin-endpoint-marker', V='gas-v2026-06-sample';
+  if(localStorage.getItem(MK)!==V){
+    ['dah-settings-v1','dah-centers-v1','dah-notices-v1'].forEach(function(k){ localStorage.removeItem(k); });
+    localStorage.setItem(MK, V);
+  }
+})();
+
+/* ════════════════════════════════════════════════
+   PIN 인증 (PAB managers[] 모델 + resolvePin 패턴)
+   샘플: settings는 로컬 기본값. 실제는 gasRead('getSettings')
+   ════════════════════════════════════════════════ */
+function djb2(str){ var h=5381; for(var i=0;i<str.length;i++){ h=((h<<5)+h)+str.charCodeAt(i); h=h&0xffffffff; } return (h>>>0).toString(16); }
+
+var settings = DAH.ls_get('dah-settings-v1', {
+  managers: [
+    { id:'m1', name:'대표', pinHash: djb2('1234'), role:'owner' },
+    { id:'m2', name:'박현우 코치', pinHash: djb2('2580'), role:'coach' }
+  ],
+  guestPin: ''
+});
+
+function resolvePin(pin, s){
+  if(s.guestPin && pin===s.guestPin) return { mode:'guest' };
+  var ms = (s.managers||[]).filter(function(m){ return m && m.pinHash && !m.retiredAt; });
+  for(var i=0;i<ms.length;i++){ if(ms[i].pinHash===djb2(pin)) return { mode:'manager', manager:ms[i] }; }
+  return null;
+}
+
+var pinInput='', failCount=0, locked=false;
+var dots=document.querySelectorAll('.pin-dots i');
+function renderDots(){ dots.forEach(function(d,i){ d.classList.toggle('on', i<pinInput.length); }); }
+function pinMsg(m){ document.getElementById('pin-msg').textContent=m||''; }
+
+document.getElementById('keypad').addEventListener('click', async function(e){
+  var b=e.target.closest('button'); if(!b||locked) return;
+  var k=b.dataset.k;
+  if(k==='del'){ pinInput=pinInput.slice(0,-1); renderDots(); pinMsg(''); return; }
+  if(k==='ok'){
+    /* closure snapshot 방지 (PAB 패턴): localStorage 재로드 + GAS 동기 재호출 */
+    var fresh = DAH.ls_get('dah-settings-v1', settings);
+    try{ var remote = await DAH.gasRead('getSettings'); if(remote){ fresh=remote; DAH.ls_set('dah-settings-v1', remote); } }catch(err){}
+    settings = fresh;
+    var r = resolvePin(pinInput, fresh);
+    if(r){ failCount=0; showShell(r); }
+    else {
+      failCount++; pinInput=''; renderDots();
+      if(failCount>=5){ locked=true; pinMsg('5회 실패 — 30초 잠금'); setTimeout(function(){ locked=false; failCount=0; pinMsg(''); }, 30000); }
+      else pinMsg('PIN이 일치하지 않습니다 ('+failCount+'/5)');
+    }
+    return;
+  }
+  if(pinInput.length<4){ pinInput+=b.textContent; renderDots(); pinMsg(''); if(pinInput.length===4){} }
+});
+
+/* ════════════════════════════════════════════════
+   셸 표시 + 화면 전환 (PAB showShell / activateScreen)
+   ════════════════════════════════════════════════ */
+function showShell(auth){
+  document.getElementById('pin-overlay').classList.add('hide');
+  document.getElementById('shell').classList.remove('hide');
+  var who = auth && auth.manager ? auth.manager.name : '게스트';
+  toast('환영합니다 · '+who+'님 — 구글시트에서 최신 데이터를 불러왔어요');
+  renderAll();
+}
+function activateScreen(name){
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.screen===name); });
+  document.querySelectorAll('.screen-panel').forEach(function(p){ p.classList.toggle('active', p.dataset.panel===name); });
+  document.querySelector('.screen').scrollTop=0;
+}
+document.querySelectorAll('.nav-btn').forEach(function(b){ b.addEventListener('click', function(){ activateScreen(b.dataset.screen); }); });
+document.querySelectorAll('[data-goto]').forEach(function(b){ b.addEventListener('click', function(){ activateScreen(b.dataset.goto); }); });
+
+/* ════════════════════════════════════════════════
+   데이터 (업체별 분리 — 06 문서 멀티테넌트)
+   실제: gasRead('getMembers'|'getPrograms'|'getPolicy')
+   ════════════════════════════════════════════════ */
+var CENTERS = {
+  a:{ name:'Art of Swimming, Golders Green',
+    kpi:{today:86,todayHint:'정규반 92%',linked:286,all:412,expiring:23,review:2},
+    watch:[{n:'이서연',d:'주 3회 → 최근 2주 1회',r:'이탈 신호'},{n:'오세훈',d:'누적 118회 — 승급(120회) 임박',r:'승급 후보'},{n:'윤가람',d:'만료 후 12일째',r:'복귀 대상'}],
+    reviews:[
+      {id:'a1',app:'박지은 · 010-<b style="color:var(--coral)">7741</b>-2236 · 방금 가입',roster:'명부: 010-<b style="color:var(--coral)">2214</b>-2236 · 화목토 19:00',ok:'연결 승인'},
+      {id:'a2',app:'김민준 · 010-3358-0094 · 어제 가입',roster:'명부: 동명이인 2건 — 반 정보로 대조',ok:'성인반 승인'}
+    ],
+    members:[
+      {n:'김보형',p:'010-4421-7702',prog:'성인 수영 월수금 09:00',pass:'~06.30 <span class="risk">D-16</span>',st:'linked'},
+      {n:'이서연',p:'010-8830-1145',prog:'성인 수영 화목토 07:00',pass:'~07.31',st:'linked'},
+      {n:'정우성',p:'010-2293-5510',prog:'성인 자유형반 20:00',pass:'~08.31',st:'pending'},
+      {n:'오세훈',p:'010-5512-8839',prog:'마스터즈 새벽반 06:00',pass:'~06.30',st:'linked'},
+      {n:'윤가람',p:'010-7714-2090',prog:'성인 수영 화목토 19:00',pass:'05.31 종료',st:'expired'}
+    ],
+    programs:[
+      {t:'성인 수영',days:[1,3,5],time:'09:00–09:50',cap:'20/20',price:'140,000'},
+      {t:'성인 수영',days:[2,4,6],time:'07:00–07:50',cap:'19/20',price:'140,000'},
+      {t:'성인 자유형반',days:[1,3],time:'20:00–20:50',cap:'12/14',price:'120,000'},
+      {t:'마스터즈 새벽반',days:[1,2,3,4,5],time:'06:00–06:50',cap:'8/10',price:'190,000'}
+    ],
+    levels:[{lv:1,nm:'입문',att:0,dc:0,e:1},{lv:2,nm:'초급',att:20,dc:2,e:1.5},{lv:3,nm:'중급',att:60,dc:3,e:2},{lv:4,nm:'상급',att:120,dc:5,e:3},{lv:5,nm:'마스터즈',att:200,dc:8,e:5}],
+    hist:{ name:'김보형',av:'보',meta:'010-4421-7702 · LEVEL 2 초급 · ✅ 연결 완료 · 첫 등록 2025.11',
+      stats:[['58','누적'],['2.8','주당'],['14','최고연속'],['2','재등록']],
+      chain:[{g:0,h:'성인 수영 월수금 · 3개월 · 380,000원',p:'2026.04–06 · 진행 중 · 출석 32회'},{g:0,h:'성인 수영 월수금 · 3개월',p:'2026.01–03 · 재등록 · 출석 21회'},{g:1,h:'끊김 32일',p:'2025.12 — 복귀 후 재등록'},{g:0,h:'성인 수영 월수금 · 1개월',p:'2025.11 · 첫 등록 · 출석 5회'}],
+      tl:[{h:'초급 승급',p:'호흡 평가 통과 · 박현우 코치',w:'2026.03'},{h:'연속 14일 최고 기록',p:'꾸준함 배지 획득',w:'2026.02'},{h:'첫 등록·회원증 발급',p:'히스토리 시작',w:'2025.11'}]
+    }
+  },
+  b:{ name:'헤엄 스튜디오 합정',
+    kpi:{today:41,todayHint:'정규반 87%',linked:122,all:187,expiring:11,review:1},
+    watch:[{n:'강하은',d:'만료 D-18 · 앱 미가입',r:'연결 대기'},{n:'이도윤',d:'누적 76회 — 승급(80회) 임박',r:'승급 후보'}],
+    reviews:[{id:'b1',app:'송하늘 · 010-<b style="color:var(--coral)">8120</b>-4471 · 오늘 가입',roster:'명부: 010-<b style="color:var(--coral)">3309</b>-4471 · 새벽 클리닉',ok:'연결 승인'}],
+    members:[
+      {n:'이도윤',p:'010-6642-1180',prog:'새벽 자유형 클리닉 06:30',pass:'~07.31',st:'linked'},
+      {n:'최서우',p:'010-3017-9923',prog:'주말 마스터즈 08:00',pass:'~08.31',st:'linked'},
+      {n:'강하은',p:'010-7755-2241',prog:'성인 기초 화목 19:30',pass:'~06.30 <span class="risk">D-16</span>',st:'pending'},
+      {n:'배수진',p:'010-2280-4470',prog:'성인 기초 화목 19:30',pass:'04.30 종료',st:'expired'}
+    ],
+    programs:[
+      {t:'새벽 자유형 클리닉',days:[1,2,3,4,5],time:'06:30–07:20',cap:'10/12',price:'170,000'},
+      {t:'성인 기초',days:[2,4],time:'19:30–20:20',cap:'14/14',price:'110,000'},
+      {t:'주말 마스터즈',days:[6,0],time:'08:00–09:20',cap:'9/10',price:'150,000'},
+      {t:'키즈 주2회',days:[1,3],time:'16:00–16:50',cap:'11/12',price:'130,000'}
+    ],
+    levels:[{lv:1,nm:'물결',att:0,dc:0,e:1},{lv:2,nm:'파도',att:25,dc:3,e:2},{lv:3,nm:'너울',att:80,dc:5,e:3},{lv:4,nm:'대양',att:160,dc:10,e:5}],
+    hist:{ name:'이도윤',av:'도',meta:'010-6642-1180 · LEVEL 2 파도 · ✅ 연결 완료 · 첫 등록 2026.01',
+      stats:[['76','누적'],['4.2','주당'],['19','최고연속'],['1','재등록']],
+      chain:[{g:0,h:'새벽 클리닉 · 3개월 · 480,000원',p:'2026.05–07 · 진행 중 · 출석 28회'},{g:0,h:'새벽 클리닉 · 3개월',p:'2026.02–04 · 재등록 · 출석 41회'},{g:0,h:'성인 기초 · 1개월',p:'2026.01 · 첫 등록 · 출석 7회'}],
+      tl:[{h:'파도 승급',p:'클리닉 반 이동·평가 통과 · 한결 코치',w:'2026.04'},{h:'연속 19일 최고 기록',p:'새벽반 개근',w:'2026.05'},{h:'첫 등록',p:'성인 기초반 시작',w:'2026.01'}]
+    }
+  }
+};
+var DOW=['일','월','화','수','목','금','토'];
+var C=CENTERS.a;
+
+function renderAll(){
+  document.getElementById('pin-center').textContent=C.name;
+  document.getElementById('progCenter').textContent=C.name;
+  var d=new Date(); document.getElementById('todayChip').textContent=(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+DOW[d.getDay()]+')';
+  var k=C.kpi;
+  document.getElementById('kToday').textContent=k.today;
+  document.getElementById('kTodayHint').textContent=k.todayHint;
+  document.getElementById('kLinked').textContent=k.linked;
+  document.getElementById('kRate').textContent='전체 '+k.all+'명의 '+Math.round(k.linked/k.all*100)+'%';
+  document.getElementById('kExpiring').textContent=k.expiring;
+  document.getElementById('kReview').textContent=C.reviews.length;
+  var nb=document.getElementById('navReviewN');
+  nb.textContent=C.reviews.length; nb.style.display=C.reviews.length?'':'none';
+  document.getElementById('todoReview').textContent=C.reviews.length+'건';
+
+  document.getElementById('watchRows').innerHTML=C.watch.map(function(w){
+    return '<tr class="hist-link" style="cursor:pointer"><td><div class="nm">'+w.n+'</div><div class="ph">'+w.d+'</div></td><td style="text-align:right"><span class="risk">'+w.r+'</span></td></tr>';
+  }).join('');
+
+  document.getElementById('reviewList').innerHTML = C.reviews.length ? C.reviews.map(function(r){
+    return '<div class="rule" id="rv-'+r.id+'"><div><b>'+r.app+'</b><div class="ph">'+r.roster+'</div></div><div class="right"><button class="btn blue sm" data-ok="'+r.id+'">'+r.ok+'</button><button class="btn ghost sm" data-no="'+r.id+'">거절</button></div></div>';
+  }).join('') : '<div style="font-size:12px;color:var(--soft)">처리할 항목이 없어요 ✅</div>';
+
+  var stMap={linked:'<span class="st linked"><i></i>연결</span>',pending:'<span class="st pending"><i></i>대기</span>',expired:'<span class="st expired"><i></i>만료</span>'};
+  document.getElementById('memberRows').innerHTML=C.members.map(function(m){
+    return '<tr class="hist-link" style="cursor:pointer"><td><div class="nm">'+m.n+'</div><div class="ph">'+m.p+'</div></td><td>'+m.prog+'</td><td>'+m.pass+'</td><td>'+stMap[m.st]+'</td></tr>';
+  }).join('');
+
+  /* 히스토리 */
+  var h=C.hist;
+  document.getElementById('hAv').textContent=h.av;
+  document.getElementById('hName').textContent=h.name;
+  document.getElementById('hMeta').textContent=h.meta;
+  document.getElementById('hStats').innerHTML=h.stats.map(function(s){ return '<div style="text-align:center"><div style="font-size:17px;font-weight:800">'+s[0]+'</div><div style="font-size:10px;color:var(--sub)">'+s[1]+'</div></div>'; }).join('');
+  document.getElementById('hChain').innerHTML=h.chain.map(function(c){
+    return '<div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--bg)"><div style="width:5px;border-radius:99px;background:'+(c.g?'var(--coral)':'var(--mint)')+'"></div><div><div style="font-size:12.5px;font-weight:700">'+c.h+'</div><div class="ph">'+c.p+'</div></div></div>';
+  }).join('');
+  document.getElementById('hTl').innerHTML=h.tl.map(function(t){
+    return '<div style="padding:8px 0 8px 16px;border-left:2px solid var(--mint);margin-left:4px"><div style="font-size:12.5px;font-weight:700">'+t.h+'</div><div class="ph">'+t.p+'</div><div style="font-size:10px;color:var(--soft);margin-top:2px">'+t.w+'</div></div>';
+  }).join('');
+
+  /* 프로그램 */
+  document.getElementById('progRows').innerHTML=C.programs.map(function(p){
+    var days=DOW.map(function(d,i){ return '<i class="'+(p.days.indexOf(i)>=0?'on':'')+'">'+d+'</i>'; }).join('');
+    return '<tr><td class="nm">'+p.t+'</td><td><div class="prog-days">'+days+'</div></td><td>'+p.time+'</td><td>'+p.cap+'</td><td>'+p.price+'원</td></tr>';
+  }).join('');
+
+  /* 레벨 */
+  document.getElementById('lvRows').innerHTML=C.levels.map(function(l){
+    return '<tr><td><b>LV'+l.lv+'</b></td><td><input value="'+l.nm+'" style="width:74px;text-align:left"></td><td><input value="'+l.att+'"></td><td><input value="'+l.dc+'"></td><td><input value="'+l.e+'"></td></tr>';
+  }).join('');
+
+  bindDynamic();
+}
+
+function bindDynamic(){
+  document.querySelectorAll('.hist-link').forEach(function(r){ r.addEventListener('click', function(){ activateScreen('hist'); }); });
+  document.querySelectorAll('[data-ok]').forEach(function(b){ b.addEventListener('click', function(){
+    var id=b.dataset.ok; document.getElementById('rv-'+id).remove();
+    C.reviews=C.reviews.filter(function(x){ return x.id!==id; }); C.kpi.linked++;
+    DAH.gasWrite('approveLink', { center:C.name, id:id });
+    renderAll(); toast('연결 승인 — 전자 회원증 발급 + 구글시트 기록');
+  }); });
+  document.querySelectorAll('[data-no]').forEach(function(b){ b.addEventListener('click', function(){
+    var id=b.dataset.no; document.getElementById('rv-'+id).remove();
+    C.reviews=C.reviews.filter(function(x){ return x.id!==id; });
+    renderAll(); toast('거절 처리됨');
+  }); });
+}
+
+document.getElementById('centerSel').addEventListener('change', function(){
+  C=CENTERS[this.value]; renderAll();
+  document.getElementById('syncState').textContent='연결됨 · '+C.name+' 로드';
+  toast(C.name+' 공간으로 전환 — 데이터·시간표·정책이 모두 분리됩니다');
+});
+document.getElementById('savePolicy').addEventListener('click', function(){
+  DAH.gasWrite('savePolicy', { center:C.name, levels:C.levels });
+  document.getElementById('syncState').textContent='연결됨 · 방금 저장';
+  toast('정책 저장됨 — gasWrite(savePolicy)로 구글시트 동기화 (다음 발급분부터 적용)');
+});
+
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); }, 2600); }
+
+renderDots();
+</script>
+</body>
+</html>
