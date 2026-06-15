@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="115" fill="#0b1320"/>
+  <g opacity="0.5">
+    <path d="M40 300 H180 L220 300 L268 150 L312 380 L350 300 H400 L440 300 H472"
+          fill="none" stroke="#1c3a4a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M40 300 H180 L220 300 L268 150 L312 380 L350 300 H400 L440 300 H472"
+        fill="none" stroke="#34d399" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="430" text-anchor="middle" font-family="-apple-system, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif" font-size="190" font-weight="800" fill="#ffffff">닿</text>
+</svg>

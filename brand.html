@@ -1,0 +1,115 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>닿 Dah — 브랜드</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;background:#eef1f5;color:#151b26;padding:22px 16px 50px;display:flex;flex-direction:column;align-items:center}
+.wrap{width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px}
+.title{text-align:center;margin-bottom:4px}
+.title h1{font-size:19px;font-weight:800}.title p{font-size:12px;color:#667085;margin-top:5px}
+.sec{font-size:12px;font-weight:700;color:#667085;margin:6px 2px -4px}
+.monitor{background:#0b1320;border-radius:18px;padding:18px 16px 14px;position:relative;overflow:hidden}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(45,212,191,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.06) 1px,transparent 1px);background-size:18px 18px}
+.m-top{display:flex;justify-content:space-between;align-items:center;position:relative;margin-bottom:6px}
+.m-top .bpm{font-size:11px;font-weight:700;color:#34d399}.m-top .bpm b{font-size:15px}
+.m-top .tag{font-size:9.5px;color:#5b7187;letter-spacing:2px;font-weight:600}
+.monitor svg{display:block;width:100%}
+.trace{fill:none;stroke:#34d399;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(52,211,153,.8))}
+.dah{font-size:26px;font-weight:800;fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 6px rgba(52,211,153,.55))}
+.d1{animation:beat 3s infinite .35s}.d2{animation:beat 3s infinite 1.18s}.d3{animation:beat 3s infinite 2.0s}
+@keyframes beat{0%,8%,100%{transform:scale(1);fill:#9fe7d3}3%{transform:scale(1.28);fill:#eafff7}}
+.cursor{fill:#eafff7;filter:drop-shadow(0 0 6px #34d399)}
+.m-cap{font-size:11px;color:#7d93a8;text-align:center;margin-top:4px;position:relative;font-weight:600}.m-cap b{color:#34d399}
+.icons{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.ico{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ico .sq{width:100%;aspect-ratio:1;border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ico svg{width:72%;height:72%}.ico span{font-size:9px;color:#98a2b3;font-weight:600;text-align:center}
+.mk{border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mk svg{height:34px;flex:none}.mk .wm b{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1;display:block}
+.mk .wm small{font-size:9.5px;margin-top:3px;font-weight:600;display:block}
+.demo{background:#0b1320;border-radius:18px;padding:20px 16px;text-align:center}
+.demo .scr{height:90px;display:flex;align-items:center;justify-content:center;position:relative}
+.demo svg{width:100%;height:100%}
+.demo .dtrace{fill:none;stroke:#1c3a4a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.demo .dlive{fill:none;stroke:#34d399;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px #34d399);stroke-dasharray:1000;stroke-dashoffset:1000;opacity:0}
+.demo.on .dlive{animation:draw 1s ease-out forwards}
+@keyframes draw{0%{stroke-dashoffset:1000;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+.demo .msg{font-size:13px;font-weight:700;color:#7d93a8;margin:10px 0 14px;min-height:18px}
+.demo.on .msg{color:#eafff7}
+.tagbtn{border:none;border-radius:13px;padding:13px 26px;font-size:14px;font-weight:700;font-family:inherit;background:#34d399;color:#062a20;cursor:pointer}
+.concept{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cc{border-radius:14px;padding:13px;text-align:center}
+.cc.alive{background:#e8f7f4;border:1px solid #b6e3d8}.cc.dead{background:#fff0eb;border:1px solid #f3d4c8}
+.cc svg{width:100%;height:36px;margin-bottom:6px}.cc b{font-size:12.5px;font-weight:700;display:block}
+.cc.alive b{color:#087f70}.cc.dead b{color:#e75b3b}.cc span{font-size:10px;color:#667085}
+.files{background:#fff;border:1px solid #e5e8ed;border-radius:14px;padding:6px 4px}
+.files a{display:flex;align-items:center;gap:10px;padding:11px 13px;text-decoration:none;color:#151b26;font-size:13px;font-weight:600;border-bottom:1px solid #f4f6f8}
+.files a:last-child{border-bottom:none}.files a .ar{margin-left:auto;color:#98a2b3}
+</style></head><body><div class="wrap">
+
+<div class="title"><h1>닿 Dah · 브랜드</h1><p>닿을 때마다 심장이 뛴다 — 출석이 곧 생존</p></div>
+
+<div class="sec">시그니처 — 심전도 모니터</div>
+<div class="monitor">
+  <div class="grid-bg"></div>
+  <div class="m-top"><div class="bpm">♥ <b>닿BPM</b></div><div class="tag">DAH · LIVE</div></div>
+  <svg viewBox="0 0 340 130">
+    <path id="ecg" class="trace" d="M0,80 H44 L56,80 L64,80 L72,26 L80,118 L88,80 L96,80 H132 L146,80 L154,26 L162,118 L170,80 L178,80 H214 L228,80 L236,26 L244,118 L252,80 L260,80 H340"/>
+    <text class="dah d1" x="72" y="20" text-anchor="middle">닿</text>
+    <text class="dah d2" x="154" y="20" text-anchor="middle">닿</text>
+    <text class="dah d3" x="236" y="20" text-anchor="middle">닿</text>
+    <circle class="cursor" r="3.6"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#ecg"/></animateMotion></circle>
+  </svg>
+  <div class="m-cap">닿을 때마다 <b>다시 뛴다</b> · 삐삐삐 → 닿닿닿</div>
+</div>
+
+<div class="sec">앱 아이콘</div>
+<div class="icons">
+  <div class="ico"><div class="sq" style="background:#0b1320"><svg viewBox="0 0 40 40"><path d="M2,23 H11 L14,23 L17,10 L20,31 L23,23 H26 L29,23 H38" fill="none" stroke="#34d399" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><text x="20" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">닿</text></svg></div><span>모니터</span></div>
+  <div class="ico"><div class="sq" style="background:#fff;border:1px solid #e5e8ed"><svg viewBox="0 0 40 40"><path d="M2,23 H11 L14,23 L17,10 L20,31 L23,23 H26 L29,23 H38" fill="none" stroke="#1467d7" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><text x="20" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#182233">닿</text></svg></div><span>화이트</span></div>
+  <div class="ico"><div class="sq" style="background:linear-gradient(135deg,#0e4ea6,#1467d7 60%,#34d399)"><svg viewBox="0 0 40 40"><path d="M2,23 H11 L14,23 L17,10 L20,31 L23,23 H26 L29,23 H38" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><text x="20" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">닿</text></svg></div><span>그라데이션</span></div>
+  <div class="ico"><div class="sq" style="background:#182233"><svg viewBox="0 0 40 40"><path d="M2,23 H10 L13,23 L16,10 L19,31 L22,23 H25" fill="none" stroke="#34d399" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M25,23 H38" fill="none" stroke="#e75b3b" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="1 3"/><text x="20" y="35" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">닿</text></svg></div><span>박동→정지</span></div>
+</div>
+
+<div class="sec">워드마크</div>
+<div>
+  <div class="mk" style="background:#0b1320"><svg viewBox="0 0 44 34"><path d="M2,20 H12 L15,20 L19,7 L23,31 L27,20 H32 L36,20 H44" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="wm"><b style="color:#fff">닿 <span style="color:#34d399">Dah</span></b><small style="color:#7d93a8">닿으면 다시 뛴다</small></div></div>
+  <div class="mk" style="background:#fff;border:1px solid #e5e8ed"><svg viewBox="0 0 44 34"><path d="M2,20 H12 L15,20 L19,7 L23,31 L27,20 H32 L36,20 H44" fill="none" stroke="#1467d7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="wm"><b style="color:#151b26">닿 <span style="color:#1467d7">Dah</span></b><small style="color:#667085">닿으면 쌓입니다</small></div></div>
+</div>
+
+<div class="sec">태그 연출 — 눌러보세요</div>
+<div class="demo" id="demo">
+  <div class="scr"><svg viewBox="0 0 300 90">
+    <path class="dtrace" d="M0,55 H300"/>
+    <path class="dlive" id="liveBeat" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
+  </svg></div>
+  <div class="msg" id="msg">대기 중 — 닿지 않으면 플랫라인</div>
+  <button class="tagbtn" id="tag">닿 태그하기</button>
+</div>
+
+<div class="sec">컨셉</div>
+<div class="concept">
+  <div class="cc alive"><svg viewBox="0 0 120 40"><path d="M0,26 H30 L36,26 L42,10 L48,36 L54,26 H64 L70,10 L76,36 L82,26 H120" fill="none" stroke="#087f70" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>닿으면 뛴다</b><span>출석이 성장으로</span></div>
+  <div class="cc dead"><svg viewBox="0 0 120 40"><path d="M0,26 H34 L40,10 L46,36 L52,26 H62 L120,26" fill="none" stroke="#e75b3b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>닿지 않으면 멈춘다</b><span>기록이 끊기고 이탈</span></div>
+</div>
+
+<div class="sec">로고 파일 (SVG)</div>
+<div class="files">
+  <a href="브랜드/dah-app-icon.svg" target="_blank">앱 아이콘<span class="ar">↗</span></a>
+  <a href="브랜드/dah-wordmark.svg" target="_blank">가로 워드마크<span class="ar">↗</span></a>
+  <a href="브랜드/dah-heartbeat-monitor.svg" target="_blank">심전도 모니터<span class="ar">↗</span></a>
+</div>
+
+</div>
+<script>
+var demo=document.getElementById('demo'),msg=document.getElementById('msg'),live=document.getElementById('liveBeat');
+document.getElementById('tag').addEventListener('click',function(){
+  demo.classList.remove('on');void demo.offsetWidth;demo.classList.add('on');
+  msg.textContent='닿았습니다 · 09:42';
+  try{
+    var ac=new(window.AudioContext||window.webkitAudioContext)();
+    [0,160].forEach(function(off){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);
+    var t=ac.currentTime+off/1000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.start(t);o.stop(t+.13);});
+  }catch(e){}
+  setTimeout(function(){msg.textContent='운동 히스토리에 기록됐어요 · 오늘도 잘 왔어요';},1200);
+});
+</script>
+</body></html>

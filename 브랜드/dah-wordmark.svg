@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200">
+  <rect width="640" height="200" rx="20" fill="#0b1320"/>
+  <path d="M40 110 H120 L142 110 L170 48 L198 168 L226 110 H260 L284 110 H320"
+        fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="320" cy="110" r="7" fill="#eafff7"/>
+  <text x="360" y="125" font-family="-apple-system, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif" font-size="92" font-weight="800" fill="#ffffff">닿</text>
+  <text x="460" y="125" font-family="-apple-system, 'Segoe UI', sans-serif" font-size="92" font-weight="800" fill="#34d399">Dah</text>
+  <text x="362" y="165" font-family="-apple-system, 'Noto Sans KR', sans-serif" font-size="22" font-weight="600" fill="#7d93a8">닿으면 다시 뛴다</text>
+</svg>
