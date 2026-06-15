@@ -61,12 +61,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;back
   <div class="m-cap">닿을 때마다 <b>다시 뛴다</b> · 삐삐삐 → 닿닿닿</div>
 </div>
 
-<div class="sec">앱 아이콘</div>
-<div class="icons">
-  <div class="ico"><div class="sq" style="background:#0b1320"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="3.4" fill="#eafff7"/></svg></div><span>모니터</span></div>
-  <div class="ico"><div class="sq" style="background:#fff;border:1px solid #e5e8ed"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#1467d7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="3.4" fill="#1467d7"/></svg></div><span>화이트</span></div>
-  <div class="ico"><div class="sq" style="background:linear-gradient(135deg,#0e4ea6,#1467d7 60%,#34d399)"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="3.4" fill="#fff"/></svg></div><span>그라데이션</span></div>
-  <div class="ico"><div class="sq" style="background:#0b1320"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="6.4" fill="none" stroke="#eafff7" stroke-width="1" opacity=".55"/><circle cx="20" cy="8" r="3.4" fill="#eafff7"/></svg></div><span>터치 링</span></div>
+<style>
+.bthrob{transform-box:fill-box;transform-origin:center;animation:bthrob 1.6s ease-in-out infinite}
+@keyframes bthrob{0%,46%,100%{transform:scale(1)}10%{transform:scale(1.42)}22%{transform:scale(1)}32%{transform:scale(1.36)}}
+.bping{transform-box:fill-box;transform-origin:center;animation:bping 1.6s ease-out infinite}
+@keyframes bping{0%{transform:scale(.5);opacity:.85}45%,100%{transform:scale(2.4);opacity:0}}
+.feat{display:flex;gap:15px;align-items:center;background:#fff;border:1px solid #e5e8ed;border-radius:16px;padding:15px}
+.feat .big{width:84px;height:84px;border-radius:22px;background:#0b1320;flex:none;display:flex;align-items:center;justify-content:center}
+.feat .big svg{width:80%;height:80%}
+.feat b{font-size:13px;color:#151b26}.feat p{font-size:11px;color:#667085;margin-top:4px;line-height:1.5}
+</style>
+<div class="sec">앱 아이콘 — 확정 (점+링 · 정적/동적 모두 4번)</div>
+<div class="feat">
+  <div class="big"><svg viewBox="0 0 40 40">
+    <path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle class="bping" cx="20" cy="8" r="3.4" fill="none" stroke="#eafff7" stroke-width="1.2"/>
+    <circle class="bthrob" cx="20" cy="8" r="3.2" fill="#eafff7"/></svg></div>
+  <div><b>동적 — 박동+핑 (lub-dub)</b><p>스플래시·태그 순간·헤더 로고에서 고점 터치가 심장처럼 박동합니다. 정지 아이콘은 같은 점+링 모양.</p></div>
+</div>
+<div class="icons" style="margin-top:10px">
+  <div class="ico"><div class="sq" style="background:#0b1320"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="6" fill="none" stroke="#eafff7" stroke-width=".95" opacity=".5"/><circle cx="20" cy="8" r="3.2" fill="#eafff7"/></svg></div><span>모니터</span></div>
+  <div class="ico"><div class="sq" style="background:#fff;border:1px solid #e5e8ed"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#1467d7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="6" fill="none" stroke="#1467d7" stroke-width=".95" opacity=".35"/><circle cx="20" cy="8" r="3.2" fill="#1467d7"/></svg></div><span>화이트</span></div>
+  <div class="ico"><div class="sq" style="background:linear-gradient(135deg,#0e4ea6,#1467d7 60%,#34d399)"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="6" fill="none" stroke="#fff" stroke-width=".95" opacity=".5"/><circle cx="20" cy="8" r="3.2" fill="#fff"/></svg></div><span>그라데이션</span></div>
+  <div class="ico"><div class="sq" style="background:#0b1320;border:1px dashed #2a3a4d"><svg viewBox="0 0 40 40"><path d="M3,25 H13 L16,25 L20,8 L24,33 L28,25 H37" fill="none" stroke="#34d399" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle class="bping" cx="20" cy="8" r="3.4" fill="none" stroke="#eafff7" stroke-width="1.2"/><circle class="bthrob" cx="20" cy="8" r="3.2" fill="#eafff7"/></svg></div><span>동적</span></div>
 </div>
 
 <div class="sec">워드마크</div>
@@ -93,7 +110,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;back
 
 <div class="sec">로고 파일 (SVG)</div>
 <div class="files">
-  <a href="브랜드/dah-app-icon.svg" target="_blank">앱 아이콘<span class="ar">↗</span></a>
+  <a href="브랜드/dah-app-icon.svg" target="_blank">앱 아이콘 — 모니터 (정적)<span class="ar">↗</span></a>
+  <a href="브랜드/dah-app-icon-animated.svg" target="_blank">앱 아이콘 — 박동 (동적)<span class="ar">↗</span></a>
+  <a href="브랜드/dah-app-icon-white.svg" target="_blank">앱 아이콘 — 화이트<span class="ar">↗</span></a>
+  <a href="브랜드/dah-app-icon-gradient.svg" target="_blank">앱 아이콘 — 그라데이션<span class="ar">↗</span></a>
   <a href="브랜드/dah-wordmark.svg" target="_blank">가로 워드마크<span class="ar">↗</span></a>
   <a href="브랜드/dah-heartbeat-monitor.svg" target="_blank">심전도 모니터<span class="ar">↗</span></a>
 </div>
