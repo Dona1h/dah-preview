@@ -151,7 +151,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .dlive{fill:none;stroke:#34d399;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px #34d399);stroke-dasharray:1000;stroke-dashoffset:1000;opacity:0}
 .tagging .dlive,.defib.revive .dlive{animation:tagdraw 1s ease-out forwards}
 @keyframes tagdraw{0%{stroke-dashoffset:1000;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
-/* 제세동 — 붉은 평선(멈춤) → 충격 → 녹색 박동 그려짐 */
+/* 첫 박동 — 붉은 평선 → 에너지 점화 → 녹색 박동 그려짐 */
 .t-shock{fill:none;stroke:#eafff7;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 10px #34d399)}
 .defib .dtrace{stroke:#7a4338}
 .defib.charging .dtrace{stroke:#c66a55;animation:deadflat 1s ease-in-out infinite}
@@ -188,9 +188,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .h-base-green{fill:none;stroke:#34d399;opacity:.45;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
-.ecg-cap.warn{color:#f0997b}
 .ecg-cap .lvl{display:block;font-size:10.5px;color:#5b7187;font-weight:500;margin-top:3px}
-/* 새 박동 — 제세동 스타일: 박동선이 충격받아 솟구치고 카드가 번쩍임 */
+/* 구간별 메인+서브 색 조합 — 심전도(녹색)와 조화, 너무 튀지 않게 / 낮음은 빨강 */
+.ecg-cap.cap-vhigh{color:#34d399}.ecg-cap.cap-vhigh .lvl{color:#1d9e75}
+.ecg-cap.cap-high{color:#5dcaa5}.ecg-cap.cap-high .lvl{color:#1d9e75}
+.ecg-cap.cap-low{color:#e75b3b}.ecg-cap.cap-low .lvl{color:#b0604c}
+/* 새 박동 — 박동선이 에너지로 솟구치고 카드가 번쩍임 */
 .ecg-card.celebrate{animation:defibcard 1.5s ease-out infinite}
 @keyframes defibcard{0%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}7%{box-shadow:inset 0 0 48px 5px rgba(52,211,153,.55)}24%{box-shadow:inset 0 0 18px 1px rgba(52,211,153,.18)}40%{box-shadow:inset 0 0 40px 4px rgba(52,211,153,.45)}100%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}}
 .ecg-card.celebrate .h-greenbeat{animation:defibjolt 1.5s ease-out infinite}
@@ -405,7 +408,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
   </div>
   <h3 id="tagTitle">입구의 닿! 태그에 폰을 대주세요</h3>
   <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
-  <button class="btn ghost" id="simulateDefib" style="color:#e75b3b;border-color:#f3d4c8">💥 첫 태그 · 제세동 연출</button>
+  <button class="btn ghost" id="simulateDefib" style="color:#e75b3b;border-color:#f3d4c8">💥 첫 태그 · 첫 박동 연출</button>
   <button class="btn ghost" data-close="tagModal">닫기</button>
 </div></div>
 
@@ -487,19 +490,19 @@ function finishTag(){
   document.getElementById('couponCnt').textContent='3장';
   document.getElementById('totalAtt').textContent='59회';
 }
-/* 제세동 연출 — 죽어있던 심장에 충격 → 다시 박동 (매우 드뭄·첫 태그) */
+/* 첫 박동 연출 — 에너지를 모아 첫 박동을 일으킴 (매우 낮음·첫 태그) */
 function runDefib(){
   var st=document.getElementById('waveStage');
   st.className='tag-mon defib charging'; st.id='waveStage';
-  document.getElementById('tagTitle').textContent='멈춰 있던 심장을 깨우는 중…';
-  dCap('⚡ 충전 중…'); chargeSound();
+  document.getElementById('tagTitle').textContent='첫 박동을 일으키는 중…';
+  dCap('⚡ 에너지 모으는 중…'); chargeSound();
   setTimeout(function(){
     st.classList.remove('charging'); st.classList.add('shock');
-    dCap('전기 충격!'); shockSound();
+    dCap('번쩍!'); shockSound();
     setTimeout(function(){
       st.classList.remove('shock'); st.classList.add('revive');   /* 녹색 박동이 그려지며 소생 */
       dCap('');
-      document.getElementById('tagTitle').textContent='심장이 다시 뛰기 시작했어요!';
+      document.getElementById('tagTitle').textContent='박동이 새롭게 시작됐어요!';
       dahBeep(0);dahBeep(220);
       setTimeout(function(){
         st.className='tag-mon'; st.id='waveStage';
@@ -553,12 +556,12 @@ function buildHistEcg(){
 function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
   var card=document.querySelector('.ecg-card');
-  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false,glow=0;
-  if(cnt<=3){msg='박동이 새롭게 뛰기 시작했어요!';lvl='지금부터 이어가요';cele=true;}            /* 매우 낮음(멤버엔 분류명 미노출) */
-  else if(ratio>=0.7){msg='역동적인 박동이 날뛰고 있어요!';lvl='그 무엇도 나를 막지 못해요';glow=.16;}   /* 매우 높음 */
-  else if(ratio>=0.45){msg='안정적으로 박동이 이어지고 있어요!';lvl='좋은 리듬이 만들어졌어요';glow=.21;}    /* 높음 */
-  else {msg='성장이 연결되도록 더 닿아 주세요!';lvl='닿으면 반드시 쌓여요';warn=true;glow=.32;}            /* 낮음 */
-  el.className='ecg-cap'+(warn?' warn':'')+(cele?' celebrate':'');
+  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,cele=false,glow=0,capCls;
+  if(cnt<=3){msg='박동이 새롭게 뛰기 시작했어요!';lvl='지금부터 이어가요';cele=true;capCls='celebrate';}   /* 매우 낮음(멤버엔 분류명 미노출) */
+  else if(ratio>=0.7){msg='역동적인 박동이 날뛰고 있어요!';lvl='그 무엇도 나를 막지 못해요';glow=.16;capCls='cap-vhigh';}
+  else if(ratio>=0.45){msg='안정적으로 박동이 이어지고 있어요!';lvl='좋은 리듬이 만들어졌어요';glow=.21;capCls='cap-high';}
+  else {msg='성장이 연결되도록 더 닿아 주세요!';lvl='닿으면 반드시 쌓여요';glow=.32;capCls='cap-low';}
+  el.className='ecg-cap '+capCls;
   el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번달 '+cnt+'회 닿!</span>';
   if(card) card.className=cele?'ecg-card celebrate':'ecg-card';
   setEcgGlow(glow,cele);
@@ -595,10 +598,10 @@ document.querySelectorAll('.ecg-demo button').forEach(function(b){
 document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
   void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 빠르게 그려짐 */
-  document.getElementById('tagTitle').textContent='닿았습니다 · 09:42';
+  document.getElementById('tagTitle').textContent='닿았습니다!';
   dahBeep(0);dahBeep(150);dahBeep(300);   /* 삐삐삐 */
   setTimeout(function(){
-    document.getElementById('tagTitle').textContent='운동 히스토리에 기록됐어요';
+    document.getElementById('tagTitle').textContent='운동 히스토리에 기록됐어요 · 09:42';
     setTimeout(function(){
       document.getElementById('tagModal').classList.remove('show');
       finishTag();
