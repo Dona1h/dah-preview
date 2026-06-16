@@ -554,12 +554,12 @@ function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
   var card=document.querySelector('.ecg-card');
   var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false,glow=0;
-  if(cnt<=3){msg='심장이 새롭게 뛰기 시작 했어요!';lvl='지금부터 이어가요';cele=true;}   /* 멤버에겐 '매우 낮음' 미노출(분류는 관리자용) */
-  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';glow=.16;}   /* 1/4 +15% */
-  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='높은 정기성';glow=.21;}        /* 1/3 +15% */
-  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;glow=.32;}            /* 1/2 +15% */
+  if(cnt<=3){msg='박동이 새롭게 뛰기 시작했어요!';lvl='지금부터 이어가요';cele=true;}            /* 매우 낮음(멤버엔 분류명 미노출) */
+  else if(ratio>=0.7){msg='역동적인 박동이 날뛰고 있어요!';lvl='그 무엇도 나를 막지 못해요';glow=.16;}   /* 매우 높음 */
+  else if(ratio>=0.45){msg='안정적으로 박동이 이어지고 있어요!';lvl='좋은 리듬이 만들어졌어요';glow=.21;}    /* 높음 */
+  else {msg='성장이 연결되도록 더 닿아 주세요!';lvl='닿으면 반드시 쌓여요';warn=true;glow=.32;}            /* 낮음 */
   el.className='ecg-cap'+(warn?' warn':'')+(cele?' celebrate':'');
-  el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번 달 '+cnt+'회 닿음</span>';
+  el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번달 '+cnt+'회 닿!</span>';
   if(card) card.className=cele?'ecg-card celebrate':'ecg-card';
   setEcgGlow(glow,cele);
 }
