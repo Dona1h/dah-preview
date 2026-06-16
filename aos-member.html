@@ -168,7 +168,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 @keyframes dflash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
 .defib-cap{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:11.5px;font-weight:800;color:#e75b3b;z-index:4;letter-spacing:.5px}
 /* 출석 심전도 (히스토리) — 닿은 날마다 한 번 뛴다 */
-.ecg-card{background:#0b1320;border:1px solid #0b1320;border-radius:18px;padding:16px 14px;margin-bottom:13px}
+.ecg-card{background:#0b1320;border:1px solid #0b1320;border-radius:18px;padding:16px 14px;margin-bottom:13px;animation:cardbreath 2.6s ease-in-out infinite}
+/* 박스 주변부가 심박과 함께 밝아지는 연출 — 구간별 밝기(매우낮음=1, 낮음=1/2, 높음=1/3, 매우높음=1/4) */
+@keyframes cardbreath{0%,100%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}50%{box-shadow:inset 0 0 36px 3px rgba(52,211,153,var(--glow,0))}}
+.ecg-card.lv-low{--glow:.28}
+.ecg-card.lv-high{--glow:.18}
+.ecg-card.lv-vhigh{--glow:.14;animation-duration:3.4s}
 .ecg-card .ecghead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
@@ -182,10 +187,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 @keyframes hsweep2{from{stroke-dashoffset:1144}to{stroke-dashoffset:144}}
 @keyframes hsweep3{from{stroke-dashoffset:1300}to{stroke-dashoffset:300}}
 .h-greenbeat{fill:none;stroke:#34d399;stroke-width:2.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 7px #34d399)}
-/* 매우 드뭄 — 수평선 빛은 붉게, 태그 포인트(박동)만 녹색 */
-/* 매우 낮음 — 지나가는 빛(스윕) 제거, 박동 jolt+플래시만 유지 */
-.ecg-card.celebrate .h-base{stroke:#e75b3b}
-.ecg-card.celebrate .h-s1,.ecg-card.celebrate .h-s2,.ecg-card.celebrate .h-s3{display:none}
+/* 매우 낮음 — 박동 왼쪽은 붉은 평선(멈춤), 오른쪽은 녹색(다시 뜀) */
+.h-base-red{fill:none;stroke:#e75b3b;opacity:.5;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.h-base-green{fill:none;stroke:#34d399;opacity:.45;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
 .ecg-cap.warn{color:#f0997b}
@@ -298,7 +302,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     <div class="ecg-demo">
       <span class="lab">미리보기 · 정기성</span>
       <button data-eg="wild">매우 높음</button>
-      <button data-eg="stable" class="on">좋음</button>
+      <button data-eg="stable" class="on">높음</button>
       <button data-eg="low">낮음</button>
       <button data-eg="new">매우 낮음</button>
     </div>
@@ -524,7 +528,7 @@ var ECG_STATES={
 };
 function buildHistEcg(){
   var svg=document.getElementById('histEcg'); if(!svg)return;
-  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',lastBX=0,greenBeatD='';
+  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',lastBX=0,greenBeatD='',firstBX=-1;
   for(var day=1;day<=TOTAL;day++){
     var i=day-1,x0=i*seg,x1=(i+1)*seg,cx=(x0+seg*0.5).toFixed(1);
     if(ATT.indexOf(day)>=0){
@@ -533,29 +537,37 @@ function buildHistEcg(){
       baseD+=spk;
       greenBeatD+=' M'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base;
       labels+='<text class="h-day" text-anchor="middle" x="'+cx+'" y="92">'+day+'</text>';
-      lastBX=+b;
+      lastBX=+b; if(firstBX<0)firstBX=x0;
     } else { baseD+=' L'+x1.toFixed(1)+','+base; }
   }
-  /* 새 박동 — 제세동 스타일: 점·링 없이 박동선 자체가 충격받아 솟구침 */
-  var greenOverlay=(ATT.length<=3 && ATT.length)?'<path class="h-greenbeat" d="'+greenBeatD.trim()+'"/>':'';
-  svg.innerHTML='<path class="h-base" d="'+baseD+'"/>'
-    +'<path class="h-s3" pathLength="1000" d="'+baseD+'"/>'
-    +'<path class="h-s2" pathLength="1000" d="'+baseD+'"/>'
-    +'<path class="h-s1" pathLength="1000" d="'+baseD+'"/>'
-    +greenOverlay+labels;
+  var isCele=ATT.length<=3 && ATT.length;
+  var html;
+  if(isCele){                                   /* 매우 낮음: 박동 왼쪽 붉은 평선, 오른쪽 녹색 + 박동 jolt */
+    html='<defs><clipPath id="rc"><rect x="-20" y="0" width="'+(firstBX+20).toFixed(1)+'" height="104"/></clipPath>'
+       +'<clipPath id="gc"><rect x="'+firstBX.toFixed(1)+'" y="0" width="'+(W-firstBX+20).toFixed(1)+'" height="104"/></clipPath></defs>'
+       +'<path class="h-base-red" clip-path="url(#rc)" d="'+baseD+'"/>'
+       +'<path class="h-base-green" clip-path="url(#gc)" d="'+baseD+'"/>'
+       +'<path class="h-greenbeat" d="'+greenBeatD.trim()+'"/>';
+  } else {
+    html='<path class="h-base" d="'+baseD+'"/>'
+       +'<path class="h-s3" pathLength="1000" d="'+baseD+'"/>'
+       +'<path class="h-s2" pathLength="1000" d="'+baseD+'"/>'
+       +'<path class="h-s1" pathLength="1000" d="'+baseD+'"/>';
+  }
+  svg.innerHTML=html+labels;
   updateEcgCap();
 }
 function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
   var card=document.querySelector('.ecg-card');
-  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false;
-  if(cnt<=3){msg='심장이 새롭게 뛰기 시작 했어요!';lvl='매우 낮음 · 지금부터 이어가요';cele=true;}
-  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';}
-  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='좋은 정기성';}
-  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;}
+  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false,lvc='';
+  if(cnt<=3){msg='심장이 새롭게 뛰기 시작 했어요!';lvl='지금부터 이어가요';cele=true;}   /* 멤버에겐 '매우 낮음' 미노출(분류는 관리자용) */
+  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';lvc='lv-vhigh';}
+  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='높은 정기성';lvc='lv-high';}
+  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;lvc='lv-low';}
   el.className='ecg-cap'+(warn?' warn':'')+(cele?' celebrate':'');
   el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번 달 '+cnt+'회 닿음</span>';
-  if(card) card.classList.toggle('celebrate',cele);
+  if(card) card.className=cele?'ecg-card celebrate':('ecg-card '+lvc);
 }
 buildHistEcg();
 /* 정기성 미리보기 데모 */
