@@ -146,22 +146,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 /* 태그 모니터 — 지난 박동(빨강)+수평선 → 태그 시 녹색으로 살아남 */
 .tag-mon{width:100%;background:#0b1320;border-radius:16px;padding:20px 12px;margin-bottom:6px;overflow:hidden;position:relative}
 .tag-ecg{width:100%;display:block;overflow:visible}
-/* 브랜드 최상단 심전도 로고 연출 — 닿닿닿 ECG + 지나가는 빛(커서) 3초, 하단 문구까지 동일 */
-.m-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(45,212,191,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.06) 1px,transparent 1px);background-size:18px 18px}
-.m-top{display:flex;justify-content:space-between;align-items:center;position:relative;margin-bottom:4px}
-.m-bpm{font-size:11px;font-weight:700;color:#34d399}.m-bpm b{font-size:15px}
-.m-live{font-size:9.5px;color:#5b7187;letter-spacing:2px;font-weight:600}
-.ntrace{fill:none;stroke:#34d399;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(52,211,153,.8))}
-.ndah{font-size:26px;font-weight:800;fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 6px rgba(52,211,153,.55))}
-.n1{animation:nbeat 3s infinite .35s}.n2{animation:nbeat 3s infinite 1.18s}.n3{animation:nbeat 3s infinite 2s}
-@keyframes nbeat{0%,8%,100%{transform:scale(1);fill:#9fe7d3}3%{transform:scale(1.28);fill:#eafff7}}
-.ncursor{fill:#eafff7;filter:drop-shadow(0 0 6px #34d399)}
-.m-cap{font-size:11px;color:#7d93a8;text-align:center;margin-top:4px;position:relative;font-weight:600}.m-cap b{color:#34d399}
-.defib .nmon,.defib .m-cap,.defib .m-top{visibility:hidden}
-/* 제세동 — 붉은 평선(멈춤) → 충격 → 닿닿닿 모니터로 소생 */
-.dtrace{fill:none;stroke:#7a4338;stroke-width:2.6;stroke-linecap:round;opacity:0}
+/* 태그 연출 — 평선 → 녹색 심박이 그려짐 (brand '태그 연출 - 눌러보세요' 방식) */
+.dtrace{fill:none;stroke:#274d66;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dlive{fill:none;stroke:var(--mint);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:500;stroke-dashoffset:500;opacity:0;filter:drop-shadow(0 0 6px rgba(52,211,153,.85))}
+.tagging .dlive,.defib.revive .dlive{animation:tagdraw 1s ease-out forwards}
+@keyframes tagdraw{0%{stroke-dashoffset:500;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+/* 제세동 — 붉은 평선(멈춤) → 충격 → 녹색 박동 그려짐 */
 .t-shock{fill:none;stroke:#eafff7;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 10px #34d399)}
-.defib .dtrace{opacity:.85}
+.defib .dtrace{stroke:#7a4338}
 .defib.charging .dtrace{stroke:#c66a55;animation:deadflat 1s ease-in-out infinite}
 @keyframes deadflat{0%,100%{opacity:.5}50%{opacity:1}}
 .defib.charging{animation:chargeglow .45s ease-in-out infinite}
@@ -170,6 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .defib.shock .t-shock{opacity:1}
 .defib.shock{animation:shake .42s linear}
 @keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}35%{transform:translateX(6px)}55%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.defib.revive .dtrace{opacity:.3}
 .defib-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(234,255,247,.95),rgba(52,211,153,.35));opacity:0;pointer-events:none;z-index:3}
 .defib.shock .defib-flash{animation:dflash .5s ease-out}
 @keyframes dflash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
@@ -190,10 +183,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 @keyframes hsweep3{from{stroke-dashoffset:1300}to{stroke-dashoffset:300}}
 .h-greenbeat{fill:none;stroke:#34d399;stroke-width:2.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 7px #34d399)}
 /* 매우 드뭄 — 수평선 빛은 붉게, 태그 포인트(박동)만 녹색 */
+/* 매우 낮음 — 지나가는 빛(스윕) 제거, 박동 jolt+플래시만 유지 */
 .ecg-card.celebrate .h-base{stroke:#e75b3b}
-.ecg-card.celebrate .h-s1{stroke:#fbd9cd;filter:drop-shadow(0 0 7px #e75b3b)}
-.ecg-card.celebrate .h-s2{stroke:#e75b3b;filter:drop-shadow(0 0 4px rgba(231,91,59,.55))}
-.ecg-card.celebrate .h-s3{stroke:#e75b3b}
+.ecg-card.celebrate .h-s1,.ecg-card.celebrate .h-s2,.ecg-card.celebrate .h-s3{display:none}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
 .ecg-cap.warn{color:#f0997b}
@@ -308,7 +300,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
       <button data-eg="wild">매우 높음</button>
       <button data-eg="stable" class="on">좋음</button>
       <button data-eg="low">낮음</button>
-      <button data-eg="new">새 박동 ✨</button>
+      <button data-eg="new">매우 낮음</button>
     </div>
   </div>
 
@@ -404,20 +396,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 <div class="overlay" id="tagModal"><div class="sheet">
   <div class="tag-mon" id="waveStage">
     <div class="defib-flash"></div>
-    <div class="m-grid"></div>
-    <div class="m-top"><div class="m-bpm">♥ <b>닿BPM</b></div><div class="m-live">DAH · LIVE</div></div>
-    <svg class="tag-ecg" viewBox="0 0 340 130">
-      <g class="nmon">
-        <path id="tagEcgPath" class="ntrace" d="M0,80 H44 L56,80 L64,80 L72,26 L80,118 L88,80 L96,80 H132 L146,80 L154,26 L162,118 L170,80 L178,80 H214 L228,80 L236,26 L244,118 L252,80 L260,80 H340"/>
-        <text class="ndah n1" x="72" y="20" text-anchor="middle">닿</text>
-        <text class="ndah n2" x="154" y="20" text-anchor="middle">닿</text>
-        <text class="ndah n3" x="236" y="20" text-anchor="middle">닿</text>
-        <circle class="ncursor" r="3.6"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#tagEcgPath"/></animateMotion></circle>
-      </g>
-      <path class="dtrace" d="M0,80 H340"/>
-      <path class="t-shock" d="M0,80 H150 L160,80 L172,14 L184,146 L196,80 H340"/>
+    <svg class="tag-ecg" viewBox="0 0 300 90">
+      <path class="dtrace" d="M0,55 H300"/>
+      <path class="t-shock" d="M0,55 H128 L138,55 L150,6 L162,84 L172,55 H300"/>
+      <path class="dlive" pathLength="500" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
     </svg>
-    <div class="m-cap">닿을 때마다 <b>다시 뛴다</b> · 삐삐삐 → 닿닿닿</div>
     <div class="defib-cap" id="defibCap"></div>
   </div>
   <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
@@ -516,12 +499,13 @@ function runDefib(){
     st.classList.remove('charging'); st.classList.add('shock');
     dCap('전기 충격!'); shockSound();
     setTimeout(function(){
-      st.className='tag-mon'; st.id='waveStage';   /* 닿닿닿 모니터로 소생 */
+      st.classList.remove('shock'); st.classList.add('revive');   /* 녹색 박동이 그려지며 소생 */
       dCap('');
       document.getElementById('tagTitle').textContent='심장이 다시 뛰기 시작했어요!';
       document.getElementById('tagDesc').innerHTML='멈춰 있던 박동이 살아났어요.<br>오늘부터 다시 이어가요!';
-      dahBeep(0);dahBeep(150);dahBeep(300);
+      dahBeep(0);dahBeep(220);
       setTimeout(function(){
+        st.className='tag-mon'; st.id='waveStage';
         finishTag();
         setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
       },1700);
@@ -565,7 +549,7 @@ function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
   var card=document.querySelector('.ecg-card');
   var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false;
-  if(cnt<=3){msg='✨ 새로운 심장박동이 시작 되었어요!';lvl='지금부터 이어가요 — 첫 박동을 쌓으세요';cele=true;}
+  if(cnt<=3){msg='심장이 새롭게 뛰기 시작 했어요!';lvl='매우 낮음 · 지금부터 이어가요';cele=true;}
   else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';}
   else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='좋은 정기성';}
   else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;}
@@ -586,7 +570,8 @@ document.querySelectorAll('.ecg-demo button').forEach(function(b){
 });
 
 document.getElementById('simulate').addEventListener('click',function(){
-  var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';  /* 살아있는 닿닿닿 모니터 */
+  var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
+  void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 그려짐 */
   document.getElementById('tagTitle').textContent='닿았습니다';
   document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
   dahBeep(0);dahBeep(150);dahBeep(300);   /* 삐삐삐 */
