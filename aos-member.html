@@ -146,11 +146,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 /* 태그 모니터 — 지난 박동(빨강)+수평선 → 태그 시 녹색으로 살아남 */
 .tag-mon{width:100%;background:#0b1320;border-radius:16px;padding:20px 12px;margin-bottom:6px;overflow:hidden;position:relative}
 .tag-ecg{width:100%;display:block;overflow:visible}
-/* 태그 연출 — 평선 → 녹색 심박이 그려짐 (brand '태그 연출 - 눌러보세요' 방식) */
-.dtrace{fill:none;stroke:#274d66;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.dlive{fill:none;stroke:var(--mint);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:500;stroke-dashoffset:500;opacity:0;filter:drop-shadow(0 0 6px rgba(52,211,153,.85))}
+/* 태그 연출 — brand '태그 연출 - 눌러보세요' 데모와 동일 (빠르고 밝게 그려짐) */
+.dtrace{fill:none;stroke:#1c3a4a;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dlive{fill:none;stroke:#34d399;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px #34d399);stroke-dasharray:1000;stroke-dashoffset:1000;opacity:0}
 .tagging .dlive,.defib.revive .dlive{animation:tagdraw 1s ease-out forwards}
-@keyframes tagdraw{0%{stroke-dashoffset:500;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+@keyframes tagdraw{0%{stroke-dashoffset:1000;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
 /* 제세동 — 붉은 평선(멈춤) → 충격 → 녹색 박동 그려짐 */
 .t-shock{fill:none;stroke:#eafff7;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 10px #34d399)}
 .defib .dtrace{stroke:#7a4338}
@@ -399,12 +399,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     <svg class="tag-ecg" viewBox="0 0 300 90">
       <path class="dtrace" d="M0,55 H300"/>
       <path class="t-shock" d="M0,55 H128 L138,55 L150,6 L162,84 L172,55 H300"/>
-      <path class="dlive" pathLength="500" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
+      <path class="dlive" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
     </svg>
     <div class="defib-cap" id="defibCap"></div>
   </div>
   <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
-  <p id="tagDesc">인식이 완료되면 출석과 운동 히스토리가<br>자동으로 기록됩니다.</p>
+  <p id="tagDesc">대기 중 — 닿지 않으면 플랫라인</p>
   <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
   <button class="btn ghost" id="simulateDefib" style="color:#e75b3b;border-color:#f3d4c8">💥 첫 태그 · 제세동 연출</button>
   <button class="btn ghost" data-close="tagModal">닫기</button>
@@ -571,21 +571,21 @@ document.querySelectorAll('.ecg-demo button').forEach(function(b){
 
 document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
-  void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 그려짐 */
-  document.getElementById('tagTitle').textContent='닿았습니다';
-  document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
+  void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 빠르게 그려짐 */
+  document.getElementById('tagTitle').textContent='닿았습니다 · 09:42';
+  document.getElementById('tagDesc').innerHTML='';
   dahBeep(0);dahBeep(150);dahBeep(300);   /* 삐삐삐 */
   setTimeout(function(){
-    document.getElementById('tagTitle').textContent='오늘 출석 완료 · 09:42';
-    document.getElementById('tagDesc').innerHTML='운동 히스토리에 오늘의 박동이 기록됐어요.<br>오늘도 잘 왔어요!';
+    document.getElementById('tagTitle').textContent='운동 히스토리에 기록됐어요';
+    document.getElementById('tagDesc').innerHTML='오늘도 잘 왔어요 · 오늘의 박동이 쌓였어요';
     setTimeout(function(){
       document.getElementById('tagModal').classList.remove('show');
       finishTag();
       TOTAL+=1; ATT.push(TOTAL); buildHistEcg();    /* 오늘의 박동을 심전도에 추가 */
       document.getElementById('ecgBpm').textContent='15회 닿음';
       setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
-    },1000);
-  },1100);
+    },900);
+  },1300);
 });
 </script>
 </body>
