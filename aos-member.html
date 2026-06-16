@@ -146,42 +146,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 /* 태그 모니터 — 지난 박동(빨강)+수평선 → 태그 시 녹색으로 살아남 */
 .tag-mon{width:100%;background:#0b1320;border-radius:16px;padding:20px 12px;margin-bottom:6px;overflow:hidden;position:relative}
 .tag-ecg{width:100%;display:block;overflow:visible}
-.t-past{fill:none;stroke:var(--coral);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(231,91,59,.55));transition:opacity .4s;opacity:.95}
-.tagging .t-past{opacity:0}
-.t-live{opacity:0;transition:opacity .45s}
-.tagging .t-live{opacity:1}
-.t-livetrace{fill:none;stroke:var(--mint);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(52,211,153,.85))}
-.t-dot{fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 4px #34d399)}
-.t-dot-past{fill:#3f7d6f;opacity:0}
-.tagging .t-dot-past{opacity:.85}
-.tagging .t-dot{animation:lubdub 1.4s ease-in-out infinite}
-.t-ping{fill:none;stroke:#eafff7;opacity:0;transform-box:fill-box;transform-origin:center}
-.tagging .t-ping.p1{animation:tping 1.4s ease-out .16s infinite}
-.tagging .t-ping.p2{animation:tping 1.4s ease-out .46s infinite}
-@keyframes lubdub{0%,45%,100%{transform:scale(1)}12%{transform:scale(1.5)}24%{transform:scale(1)}34%{transform:scale(1.42)}}
-@keyframes tping{0%{transform:scale(.5);opacity:.7}55%,100%{transform:scale(2.7);opacity:0}}
-/* 제세동(defibrillator) 연출 — 멈춘 심장에 충격 → 다시 박동 */
-.t-flat{fill:none;stroke:#7a4338;stroke-width:2.4;stroke-linecap:round;opacity:0}
-.t-shock{fill:none;stroke:#eafff7;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 9px #34d399)}
-.defib .t-past{opacity:0}
-.defib .t-live{opacity:0}
-.defib .t-flat{opacity:.85}
-.defib.charging .t-flat{stroke:#c66a55;animation:deadflat 1s ease-in-out infinite}
-@keyframes deadflat{0%,100%{opacity:.45}50%{opacity:.9}}
+/* 브랜드 로고 페이지의 태그 연출 — 평선 → 녹색 심박이 그려짐 */
+.dtrace{fill:none;stroke:#274d66;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dlive{fill:none;stroke:var(--mint);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:500;stroke-dashoffset:500;opacity:0;filter:drop-shadow(0 0 6px rgba(52,211,153,.85))}
+.tagging .dlive,.defib.revive .dlive{animation:tagdraw 1s ease-out forwards}
+@keyframes tagdraw{0%{stroke-dashoffset:500;opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+/* 제세동 — 붉은 평선(멈춤) → 충격 → 녹색 박동 그려짐 */
+.t-shock{fill:none;stroke:#eafff7;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;filter:drop-shadow(0 0 10px #34d399)}
+.defib .dtrace{stroke:#7a4338}
+.defib.charging .dtrace{stroke:#c66a55;animation:deadflat 1s ease-in-out infinite}
+@keyframes deadflat{0%,100%{opacity:.5}50%{opacity:1}}
 .defib.charging{animation:chargeglow .45s ease-in-out infinite}
-@keyframes chargeglow{0%,100%{box-shadow:inset 0 0 0 0 rgba(231,91,59,0)}50%{box-shadow:inset 0 0 28px 2px rgba(231,91,59,.45)}}
-.defib.shock .t-flat{opacity:0}
+@keyframes chargeglow{0%,100%{box-shadow:inset 0 0 0 0 rgba(231,91,59,0)}50%{box-shadow:inset 0 0 30px 2px rgba(231,91,59,.45)}}
+.defib.shock .dtrace{opacity:.2}
 .defib.shock .t-shock{opacity:1}
 .defib.shock{animation:shake .42s linear}
 @keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}35%{transform:translateX(6px)}55%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.defib.revive .dtrace{opacity:.3}
 .defib-flash{position:absolute;inset:0;background:radial-gradient(circle,rgba(234,255,247,.95),rgba(52,211,153,.35));opacity:0;pointer-events:none;z-index:3}
 .defib.shock .defib-flash{animation:dflash .5s ease-out}
 @keyframes dflash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
-.defib.revive .t-flat{opacity:0}
-.defib.revive .t-live{opacity:1}
-.defib.revive .t-dot{animation:lubdub 1.4s ease-in-out infinite}
-.defib.revive .t-ping.p1{animation:tping 1.4s ease-out .16s infinite}
-.defib.revive .t-ping.p2{animation:tping 1.4s ease-out .46s infinite}
 .defib-cap{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:11.5px;font-weight:800;color:#e75b3b;z-index:4;letter-spacing:.5px}
 .defib.revive .defib-cap{color:#34d399}
 /* 출석 심전도 (히스토리) — 닿은 날마다 한 번 뛴다 */
@@ -191,13 +175,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
 .ecg-card svg{width:100%;display:block;overflow:visible}
 .h-base{fill:none;stroke:#34d399;opacity:.13;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-/* 불빛 선이 지나가는 스윕 — 밝은 선 + 흐려지는 잔광 (head 없음) */
-.h-s1{fill:none;stroke:#d6fbef;opacity:.95;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:26 1000;filter:drop-shadow(0 0 6px #34d399);animation:hsweep 4.5s linear infinite}
-.h-s2{fill:none;stroke:#34d399;opacity:.55;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:74 1000;filter:drop-shadow(0 0 4px rgba(52,211,153,.6));animation:hsweep2 4.5s linear infinite}
-.h-s3{fill:none;stroke:#34d399;opacity:.26;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:140 1000;animation:hsweep3 4.5s linear infinite}
-@keyframes hsweep{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
-@keyframes hsweep2{from{stroke-dashoffset:1058}to{stroke-dashoffset:58}}
-@keyframes hsweep3{from{stroke-dashoffset:1130}to{stroke-dashoffset:130}}
+/* 불빛 선 — 가장 밝은 부분이 선두(앞), 잔광이 뒤로 흐려짐 */
+.h-s1{fill:none;stroke:#eafff7;opacity:.98;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22 1000;filter:drop-shadow(0 0 7px #34d399);animation:hsweep1 4.5s linear infinite}
+.h-s2{fill:none;stroke:#34d399;opacity:.5;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:72 1000;filter:drop-shadow(0 0 4px rgba(52,211,153,.55));animation:hsweep2 4.5s linear infinite}
+.h-s3{fill:none;stroke:#34d399;opacity:.22;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:150 1000;animation:hsweep3 4.5s linear infinite}
+@keyframes hsweep1{from{stroke-dashoffset:1044}to{stroke-dashoffset:44}}
+@keyframes hsweep2{from{stroke-dashoffset:1144}to{stroke-dashoffset:144}}
+@keyframes hsweep3{from{stroke-dashoffset:1300}to{stroke-dashoffset:300}}
+.h-greenbeat{fill:none;stroke:#34d399;stroke-width:2.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 7px #34d399)}
+/* 매우 드뭄 — 수평선 빛은 붉게, 태그 포인트(박동)만 녹색 */
+.ecg-card.celebrate .h-base{stroke:#e75b3b}
+.ecg-card.celebrate .h-s1{stroke:#fbd9cd;filter:drop-shadow(0 0 7px #e75b3b)}
+.ecg-card.celebrate .h-s2{stroke:#e75b3b;filter:drop-shadow(0 0 4px rgba(231,91,59,.55))}
+.ecg-card.celebrate .h-s3{stroke:#e75b3b}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
 .ecg-cap.warn{color:#f0997b}
@@ -413,17 +403,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 <div class="overlay" id="tagModal"><div class="sheet">
   <div class="tag-mon" id="waveStage">
     <div class="defib-flash"></div>
-    <svg class="tag-ecg" viewBox="0 0 120 40">
-      <path class="t-flat" d="M0,26 H120"/>
-      <path class="t-past" d="M0,26 H34 L40,10 L46,36 L52,26 H62 L120,26"/>
-      <path class="t-shock" d="M0,26 H54 L57,26 L60,1 L63,39 L66,26 H120"/>
-      <g class="t-live">
-        <path class="t-livetrace" d="M0,26 H30 L36,26 L42,10 L48,36 L54,26 H64 L70,10 L76,36 L82,26 H120"/>
-        <circle class="t-dot-past" cx="42" cy="10" r="2.3"/>
-        <circle class="t-ping p1" cx="70" cy="10" r="3" stroke-width="1"/>
-        <circle class="t-ping p2" cx="70" cy="10" r="3" stroke-width="1"/>
-        <circle class="t-dot" cx="70" cy="10" r="2.6"/>
-      </g>
+    <svg class="tag-ecg" viewBox="0 0 300 90">
+      <path class="dtrace" d="M0,55 H300"/>
+      <path class="t-shock" d="M0,55 H128 L138,55 L150,6 L162,84 L172,55 H300"/>
+      <path class="dlive" pathLength="500" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
     </svg>
     <div class="defib-cap" id="defibCap"></div>
   </div>
@@ -548,12 +531,14 @@ var ECG_STATES={
 };
 function buildHistEcg(){
   var svg=document.getElementById('histEcg'); if(!svg)return;
-  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',lastBX=0;
+  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',lastBX=0,greenBeatD='';
   for(var day=1;day<=TOTAL;day++){
     var i=day-1,x0=i*seg,x1=(i+1)*seg,cx=(x0+seg*0.5).toFixed(1);
     if(ATT.indexOf(day)>=0){
       var a=(x0+seg*0.30).toFixed(1),b=(x0+seg*0.44).toFixed(1),c=(x0+seg*0.58).toFixed(1),e=(x0+seg*0.72).toFixed(1);
-      baseD+=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+      var spk=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+      baseD+=spk;
+      greenBeatD+=' M'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base;
       labels+='<text class="h-day" text-anchor="middle" x="'+cx+'" y="92">'+day+'</text>';
       lastBX=+b;
     } else { baseD+=' L'+x1.toFixed(1)+','+base; }
@@ -571,11 +556,12 @@ function buildHistEcg(){
       +'<circle class="hb-core" cx="'+bx+'" cy="'+by+'" r="3.4"/>'
       +'</g>';
   }
+  var greenOverlay=(ATT.length<=3 && ATT.length)?'<path class="h-greenbeat" d="'+greenBeatD.trim()+'"/>':'';
   svg.innerHTML='<path class="h-base" d="'+baseD+'"/>'
     +'<path class="h-s3" pathLength="1000" d="'+baseD+'"/>'
     +'<path class="h-s2" pathLength="1000" d="'+baseD+'"/>'
     +'<path class="h-s1" pathLength="1000" d="'+baseD+'"/>'
-    +burst+labels;
+    +greenOverlay+burst+labels;
   updateEcgCap();
 }
 function updateEcgCap(){
@@ -603,29 +589,23 @@ document.querySelectorAll('.ecg-demo button').forEach(function(b){
 });
 
 document.getElementById('simulate').addEventListener('click',function(){
-  var stage=document.getElementById('waveStage'); stage.classList.add('tagging');
-  document.getElementById('tagTitle').textContent='닿았습니다 · 다시 뜁니다';
-  document.getElementById('tagDesc').innerHTML='멈춰 있던 박동이 다시 시작됐어요…';
-  dahBeep(0);dahBeep(180);
+  var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
+  void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 그려짐 */
+  document.getElementById('tagTitle').textContent='닿았습니다';
+  document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
+  dahBeep(0);
   setTimeout(function(){
     dahBeep(0);
     document.getElementById('tagTitle').textContent='오늘 출석 완료 · 09:42';
     document.getElementById('tagDesc').innerHTML='운동 히스토리에 오늘의 박동이 기록됐어요.<br>오늘도 잘 왔어요!';
     setTimeout(function(){
       document.getElementById('tagModal').classList.remove('show'); stage.classList.remove('tagging');
-      var a=document.getElementById('actionCard'); a.classList.add('done');
-      document.getElementById('actionTitle').textContent='오늘 출석 완료 · 09:42';
-      document.getElementById('actionCopy').textContent='운동 히스토리에 기록됐어요. 오늘도 잘 왔어요!';
-      document.getElementById('tagOpen').textContent='완료';
-      document.getElementById('streakVal').textContent='10일';
-      document.getElementById('monthVal').textContent='15회';
-      document.getElementById('couponCnt').textContent='3장';
-      document.getElementById('totalAtt').textContent='59회';
+      finishTag();
       TOTAL+=1; ATT.push(TOTAL); buildHistEcg();    /* 오늘의 박동을 심전도에 추가 */
       document.getElementById('ecgBpm').textContent='15회 닿음';
       setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
-    },1100);
-  },1500);
+    },1000);
+  },1100);
 });
 </script>
 </body>
