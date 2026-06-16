@@ -168,12 +168,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 @keyframes dflash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
 .defib-cap{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:11.5px;font-weight:800;color:#e75b3b;z-index:4;letter-spacing:.5px}
 /* 출석 심전도 (히스토리) — 닿은 날마다 한 번 뛴다 */
-.ecg-card{background:#0b1320;border:1px solid #0b1320;border-radius:18px;padding:16px 14px;margin-bottom:13px;animation:cardbreath 2.6s ease-in-out infinite}
-/* 박스 주변부가 심박과 함께 밝아지는 연출 — 구간별 밝기(매우낮음=1, 낮음=1/2, 높음=1/3, 매우높음=1/4) */
-@keyframes cardbreath{0%,100%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}50%{box-shadow:inset 0 0 36px 3px rgba(52,211,153,var(--glow,0))}}
-.ecg-card.lv-low{--glow:.28}
-.ecg-card.lv-high{--glow:.18}
-.ecg-card.lv-vhigh{--glow:.14;animation-duration:3.4s}
+.ecg-card{background:#0b1320;border:1px solid #0b1320;border-radius:18px;padding:16px 14px;margin-bottom:13px}
+/* 박스 주변부 글로우는 JS가 박동(스윕이 박동을 지나는 순간)에 맞춰 밝힘 — setEcgGlow() */
 .ecg-card .ecghead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
@@ -407,8 +403,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     </svg>
     <div class="defib-cap" id="defibCap"></div>
   </div>
-  <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
-  <p id="tagDesc">대기 중 — 닿지 않으면 플랫라인</p>
+  <h3 id="tagTitle">입구의 닿! 태그에 폰을 대주세요</h3>
   <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
   <button class="btn ghost" id="simulateDefib" style="color:#e75b3b;border-color:#f3d4c8">💥 첫 태그 · 제세동 연출</button>
   <button class="btn ghost" data-close="tagModal">닫기</button>
@@ -497,7 +492,6 @@ function runDefib(){
   var st=document.getElementById('waveStage');
   st.className='tag-mon defib charging'; st.id='waveStage';
   document.getElementById('tagTitle').textContent='멈춰 있던 심장을 깨우는 중…';
-  document.getElementById('tagDesc').innerHTML='첫 박동을 위해 충전하고 있어요.';
   dCap('⚡ 충전 중…'); chargeSound();
   setTimeout(function(){
     st.classList.remove('charging'); st.classList.add('shock');
@@ -506,7 +500,6 @@ function runDefib(){
       st.classList.remove('shock'); st.classList.add('revive');   /* 녹색 박동이 그려지며 소생 */
       dCap('');
       document.getElementById('tagTitle').textContent='심장이 다시 뛰기 시작했어요!';
-      document.getElementById('tagDesc').innerHTML='멈춰 있던 박동이 살아났어요.<br>오늘부터 다시 이어가요!';
       dahBeep(0);dahBeep(220);
       setTimeout(function(){
         st.className='tag-mon'; st.id='waveStage';
@@ -560,14 +553,32 @@ function buildHistEcg(){
 function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
   var card=document.querySelector('.ecg-card');
-  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false,lvc='';
+  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false,glow=0;
   if(cnt<=3){msg='심장이 새롭게 뛰기 시작 했어요!';lvl='지금부터 이어가요';cele=true;}   /* 멤버에겐 '매우 낮음' 미노출(분류는 관리자용) */
-  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';lvc='lv-vhigh';}
-  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='높은 정기성';lvc='lv-high';}
-  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;lvc='lv-low';}
+  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';glow=.16;}   /* 1/4 +15% */
+  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='높은 정기성';glow=.21;}        /* 1/3 +15% */
+  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;glow=.32;}            /* 1/2 +15% */
   el.className='ecg-cap'+(warn?' warn':'')+(cele?' celebrate':'');
   el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번 달 '+cnt+'회 닿음</span>';
-  if(card) card.className=cele?'ecg-card celebrate':('ecg-card '+lvc);
+  if(card) card.className=cele?'ecg-card celebrate':'ecg-card';
+  setEcgGlow(glow,cele);
+}
+/* 박스 주변부 글로우 — 스윕이 박동을 지나는 순간 밝아짐 (매우 낮음의 박동 동기 방식과 동일) */
+var _ecgRaf=null;
+function setEcgGlow(maxGlow,isCele){
+  if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;}
+  var card=document.querySelector('.ecg-card'); if(!card)return;
+  if(isCele){card.style.boxShadow='';return;}                 /* 매우 낮음은 CSS defibcard가 처리 */
+  var W=480,seg=W/TOTAL,period=4500,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
+  var start=performance.now();
+  function tick(now){
+    var L=(((now-start)%period)/period)*W,d=1e9,i;
+    for(i=0;i<beatX.length;i++){var dd=Math.abs(beatX[i]-L); if(dd<d)d=dd;}
+    var g=d<16?maxGlow*(1-d/16):0;
+    card.style.boxShadow=g>0.012?'inset 0 0 38px 4px rgba(52,211,153,'+g.toFixed(3)+')':'inset 0 0 0 0 rgba(52,211,153,0)';
+    _ecgRaf=requestAnimationFrame(tick);
+  }
+  _ecgRaf=requestAnimationFrame(tick);
 }
 buildHistEcg();
 /* 정기성 미리보기 데모 */
@@ -585,11 +596,9 @@ document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
   void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 빠르게 그려짐 */
   document.getElementById('tagTitle').textContent='닿았습니다 · 09:42';
-  document.getElementById('tagDesc').innerHTML='';
   dahBeep(0);dahBeep(150);dahBeep(300);   /* 삐삐삐 */
   setTimeout(function(){
     document.getElementById('tagTitle').textContent='운동 히스토리에 기록됐어요';
-    document.getElementById('tagDesc').innerHTML='오늘도 잘 왔어요 · 오늘의 박동이 쌓였어요';
     setTimeout(function(){
       document.getElementById('tagModal').classList.remove('show');
       finishTag();
