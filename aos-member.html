@@ -166,11 +166,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
 .ecg-card svg{width:100%;display:block;overflow:visible}
-.h-base{fill:none;stroke:#34d399;opacity:.15;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.h-glow{fill:none;stroke:#34d399;opacity:.5;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60 940;filter:drop-shadow(0 0 4px rgba(52,211,153,.7));animation:hrun 6s linear infinite}
-.h-head{fill:none;stroke:#eafff7;opacity:.95;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:10 990;filter:drop-shadow(0 0 6px #34d399);animation:hhead 6s linear infinite}
-@keyframes hrun{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
-@keyframes hhead{from{stroke-dashoffset:1052}to{stroke-dashoffset:52}}
+.h-base{fill:none;stroke:#34d399;opacity:.13;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.h-pulse{fill:none;stroke:#34d399;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.13;filter:drop-shadow(0 0 5px rgba(52,211,153,.9));animation:hbeat 6s linear infinite}
+@keyframes hbeat{0%{opacity:.13;stroke-width:2}1.4%{opacity:1;stroke-width:3.2}2.8%{opacity:.45;stroke-width:2.4}4.2%{opacity:1;stroke-width:3}5.8%{opacity:.13;stroke-width:2}100%{opacity:.13;stroke-width:2}}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
 .ecg-cap.warn{color:#f0997b}
@@ -447,16 +445,21 @@ var TOTAL=24;                                   /* 이번 달 표시 일수 */
 var ATT=[2,3,5,6,8,10,11,13,15,16,18,20,22,23]; /* 닿은 날(일) */
 function buildHistEcg(){
   var svg=document.getElementById('histEcg'); if(!svg)return;
-  var W=480,base=50,seg=W/TOTAL,d='M0,'+base,labels='';
+  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',pulses='';
+  var N=ATT.length,T=6,idx=0;                       /* T=루프 6초, 박동이 날짜를 따라 이동 */
   for(var day=1;day<=TOTAL;day++){
     var i=day-1,x0=i*seg,x1=(i+1)*seg,cx=(x0+seg*0.5).toFixed(1);
     if(ATT.indexOf(day)>=0){
       var a=(x0+seg*0.30).toFixed(1),b=(x0+seg*0.44).toFixed(1),c=(x0+seg*0.58).toFixed(1),e=(x0+seg*0.72).toFixed(1);
-      d+=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+      var spike=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+      baseD+=spike;
+      var delay=(idx/N*T).toFixed(2);
+      pulses+='<path class="h-pulse" style="animation-delay:'+delay+'s" d="M'+x0.toFixed(1)+','+base+spike+'"/>';
       labels+='<text class="h-day" text-anchor="middle" x="'+cx+'" y="92">'+day+'</text>';
-    } else { d+=' L'+x1.toFixed(1)+','+base; }
+      idx++;
+    } else { baseD+=' L'+x1.toFixed(1)+','+base; }
   }
-  svg.innerHTML='<path class="h-base" d="'+d+'"/><path class="h-glow" pathLength="1000" d="'+d+'"/><path class="h-head" pathLength="1000" d="'+d+'"/>'+labels;
+  svg.innerHTML='<path class="h-base" d="'+baseD+'"/>'+pulses+labels;
   updateEcgCap();
 }
 function updateEcgCap(){

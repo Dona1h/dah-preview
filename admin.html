@@ -331,6 +331,19 @@ textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:10px
       <div class="rule"><b>브랜드 컬러</b><span class="desc">회원 앱 주 색상</span><div class="right"><span id="brandColor" style="width:24px;height:24px;border-radius:8px;background:var(--blue);display:inline-block;border:1px solid var(--line)"></span></div></div>
     </div>
   </div>
+  <div class="panel">
+    <div class="panel-head"><h2>회원 출석 심전도 — 정기성 안내 문구</h2><span class="desc">회원 앱 성장 탭에 출석 규칙성(닿은 날/표시 일수)에 따라 자동 노출됩니다</span></div>
+    <table>
+      <thead><tr><th style="width:90px">정기성</th><th>회원에게 보이는 문구</th><th style="width:120px">기준(닿음 비율)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="st linked"><i></i>매우 높음</span></td><td><b style="color:var(--mint)">역동적으로 심장이 날뛰고 있어요!</b></td><td>70% 이상</td></tr>
+        <tr><td><span class="st linked"><i></i>좋음</span></td><td><b style="color:var(--mint)">안정적인 심장 박동이 이어지네요!</b></td><td>45% 이상</td></tr>
+        <tr><td><span class="st review"><i></i>낮음</span></td><td><b style="color:var(--coral)">심장이 멈추지 않도록 닿아 주세요!</b></td><td>45% 미만</td></tr>
+        <tr><td><span class="st pending"><i></i>매우 드뭄</span></td><td><b style="color:var(--gold)">새로운 심장박동이 시작 되었어요!</b></td><td>닿음 3회 이하</td></tr>
+      </tbody>
+    </table>
+    <div class="policy-note">⚠️ <b>낮음</b> 구간 회원은 이탈 위험 신호입니다 — 대시보드 ‘이번 주 살펴볼 회원’과 연동해 케어하세요. 문구·기준은 닿 표준이며 업체가 임의로 바꾸지 않습니다.</div>
+  </div>
   <div class="panel" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
     <div><b style="font-size:13px">변경 사항 저장</b><div style="font-size:11.5px;color:var(--sub);margin-top:3px">정책 변경은 <b>다음 결제·다음 발급분부터</b> 적용됩니다. 이미 발급된 쿠폰과 고지된 할인은 보호돼요. 모든 변경은 이력에 기록됩니다.</div></div>
     <button class="btn blue" id="policySave" style="margin-left:auto">저장</button>
