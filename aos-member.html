@@ -167,12 +167,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
 .ecg-card svg{width:100%;display:block;overflow:visible}
 .h-base{fill:none;stroke:#34d399;opacity:.13;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.h-pulse{fill:none;stroke:#34d399;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.13;filter:drop-shadow(0 0 5px rgba(52,211,153,.9));animation:hbeat 6s linear infinite}
+.h-pulse{fill:none;stroke:#34d399;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.13;filter:drop-shadow(0 0 5px rgba(52,211,153,.9));animation:hbeat 5s linear infinite}
 @keyframes hbeat{0%{opacity:.13;stroke-width:2}1.4%{opacity:1;stroke-width:3.2}2.8%{opacity:.45;stroke-width:2.4}4.2%{opacity:1;stroke-width:3}5.8%{opacity:.13;stroke-width:2}100%{opacity:.13;stroke-width:2}}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
 .ecg-cap.warn{color:#f0997b}
 .ecg-cap .lvl{display:block;font-size:10.5px;color:#5b7187;font-weight:500;margin-top:3px}
+/* 새 박동 시작 — 축하 이펙트 (매우 드뭄) */
+.ecg-card.celebrate{animation:cardglow 1.8s ease-out infinite}
+@keyframes cardglow{0%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}35%{box-shadow:inset 0 0 36px 2px rgba(52,211,153,.34)}100%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}}
+.hb-ring{fill:none;stroke:#34d399;transform-box:fill-box;transform-origin:center;animation:hbburst 1.8s ease-out infinite}
+.hb-ring.r2{animation-delay:.6s}.hb-ring.r3{animation-delay:1.2s}
+@keyframes hbburst{0%{transform:scale(.3);opacity:.9;stroke-width:2}75%,100%{transform:scale(6);opacity:0;stroke-width:.4}}
+.hb-core{fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 9px #34d399);animation:hbcore 1s ease-in-out infinite}
+@keyframes hbcore{0%,100%{transform:scale(1)}45%{transform:scale(1.55)}}
+.hb-spark{fill:#eafff7;opacity:0;transform-box:fill-box;transform-origin:center;animation:hbspark 1.8s ease-in-out infinite}
+@keyframes hbspark{0%,100%{opacity:0;transform:scale(0)}40%{opacity:1;transform:scale(1)}72%{opacity:0;transform:scale(.3)}}
+.ecg-cap.celebrate{color:#eafff7;font-size:13.5px}
+.ecg-cap.celebrate .lvl{color:#34d399}
+.ecg-demo{display:flex;gap:6px;margin-top:13px;flex-wrap:wrap}
+.ecg-demo .lab{flex-basis:100%;font-size:9.5px;color:#5b7187;font-weight:600;margin-bottom:1px}
+.ecg-demo button{flex:1;min-width:60px;border:1px solid #243348;background:#101c2e;color:#7d93a8;font-family:inherit;font-size:10.5px;font-weight:700;border-radius:9px;padding:7px 4px;cursor:pointer}
+.ecg-demo button.on{background:#1a3550;border-color:#34d399;color:#9fe7d3}
 .src-tag{font-size:9px;font-weight:700;color:var(--mint);background:var(--mint-bg);border-radius:5px;padding:2px 6px;margin-left:auto}
 </style>
 </head>
@@ -267,6 +283,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     <div class="ecghead"><b>♥ 이번 달 내 박동</b><span id="ecgBpm">14회 닿음</span></div>
     <svg id="histEcg" viewBox="0 0 480 104"></svg>
     <div class="ecg-cap" id="ecgCap"></div>
+    <div class="ecg-demo">
+      <span class="lab">미리보기 · 정기성</span>
+      <button data-eg="wild">매우 높음</button>
+      <button data-eg="stable" class="on">좋음</button>
+      <button data-eg="low">낮음</button>
+      <button data-eg="new">새 박동 ✨</button>
+    </div>
   </div>
 
   <div class="sec-title"><h2>나의 운동 히스토리</h2><span>결제 이후 모든 성장 기록</span></div>
@@ -443,36 +466,67 @@ function dahBeep(off){try{var ac=window._dahAC||(window._dahAC=new(window.AudioC
 /* 출석 심전도 — 이번 달, 닿은 날(ATT)마다 박동 / 빛이 박동을 따라 계속 흐름 */
 var TOTAL=24;                                   /* 이번 달 표시 일수 */
 var ATT=[2,3,5,6,8,10,11,13,15,16,18,20,22,23]; /* 닿은 날(일) */
+var ECG_STATES={
+  wild:[1,2,3,4,5,7,8,9,10,11,12,14,15,16,17,18,19,21,22,23,24],
+  stable:[2,3,5,6,8,10,11,13,15,16,18,20,22,23],
+  low:[3,8,12,17,21],
+  new:[20]
+};
 function buildHistEcg(){
   var svg=document.getElementById('histEcg'); if(!svg)return;
-  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',pulses='';
-  var N=ATT.length,T=6,idx=0;                       /* T=루프 6초, 박동이 날짜를 따라 이동 */
+  var W=480,base=50,seg=W/TOTAL,baseD='M0,'+base,labels='',pulses='',T=5,lastBX=0;
   for(var day=1;day<=TOTAL;day++){
     var i=day-1,x0=i*seg,x1=(i+1)*seg,cx=(x0+seg*0.5).toFixed(1);
     if(ATT.indexOf(day)>=0){
       var a=(x0+seg*0.30).toFixed(1),b=(x0+seg*0.44).toFixed(1),c=(x0+seg*0.58).toFixed(1),e=(x0+seg*0.72).toFixed(1);
       var spike=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
       baseD+=spike;
-      var delay=(idx/N*T).toFixed(2);
+      /* 위치 기반 딜레이 — 닿은 날 구간에서만 리듬, 빈 날(수평선)은 박동 없이 통과 */
+      var delay=((day-1)/TOTAL*T).toFixed(2);
       pulses+='<path class="h-pulse" style="animation-delay:'+delay+'s" d="M'+x0.toFixed(1)+','+base+spike+'"/>';
       labels+='<text class="h-day" text-anchor="middle" x="'+cx+'" y="92">'+day+'</text>';
-      idx++;
+      lastBX=+b;
     } else { baseD+=' L'+x1.toFixed(1)+','+base; }
   }
-  svg.innerHTML='<path class="h-base" d="'+baseD+'"/>'+pulses+labels;
+  var burst='';
+  if(ATT.length<=3 && ATT.length){                  /* 새 박동 시작 — 축하 버스트 */
+    var bx=lastBX,by=base-28;
+    burst='<g class="h-burst">'
+      +'<circle class="hb-ring" cx="'+bx+'" cy="'+by+'" r="7"/>'
+      +'<circle class="hb-ring r2" cx="'+bx+'" cy="'+by+'" r="7"/>'
+      +'<circle class="hb-ring r3" cx="'+bx+'" cy="'+by+'" r="7"/>'
+      +'<circle class="hb-spark" cx="'+(bx-15)+'" cy="'+(by-5)+'" r="1.9"/>'
+      +'<circle class="hb-spark" cx="'+(bx+15)+'" cy="'+(by-1)+'" r="1.9" style="animation-delay:.35s"/>'
+      +'<circle class="hb-spark" cx="'+(bx+9)+'" cy="'+(by+12)+'" r="1.5" style="animation-delay:.7s"/>'
+      +'<circle class="hb-core" cx="'+bx+'" cy="'+by+'" r="3.4"/>'
+      +'</g>';
+  }
+  svg.innerHTML='<path class="h-base" d="'+baseD+'"/>'+pulses+burst+labels;
   updateEcgCap();
 }
 function updateEcgCap(){
   var el=document.getElementById('ecgCap'); if(!el)return;
-  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false;
-  if(cnt<=3){msg='새로운 심장박동이 시작 되었어요!';lvl='굉장히 드문 정기성';}
+  var card=document.querySelector('.ecg-card');
+  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false,cele=false;
+  if(cnt<=3){msg='✨ 새로운 심장박동이 시작 되었어요!';lvl='지금부터 이어가요 — 첫 박동을 쌓으세요';cele=true;}
   else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';}
   else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='좋은 정기성';}
   else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;}
-  el.className='ecg-cap'+(warn?' warn':'');
+  el.className='ecg-cap'+(warn?' warn':'')+(cele?' celebrate':'');
   el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번 달 '+cnt+'회 닿음</span>';
+  if(card) card.classList.toggle('celebrate',cele);
 }
 buildHistEcg();
+/* 정기성 미리보기 데모 */
+document.querySelectorAll('.ecg-demo button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.ecg-demo button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    ATT=ECG_STATES[b.dataset.eg].slice();
+    document.getElementById('ecgBpm').textContent=ATT.length+'회 닿음';
+    buildHistEcg();
+  });
+});
 
 document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.classList.add('tagging');
