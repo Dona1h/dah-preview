@@ -143,27 +143,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .btn{display:block;width:100%;border:none;border-radius:13px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn.blue{background:var(--blue);color:#fff}.btn.ghost{background:var(--white);border:1px solid var(--line);color:var(--ink)}
 .sheet .btn{margin-top:8px}
-.wave-stage{width:108px;height:108px;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
-.wave-core{width:66px;height:66px;border-radius:50%;background:#0b1320;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;transition:background .4s}
-.wave-core svg{width:60%;height:60%}
-.wave-core .trace{fill:none;stroke:var(--mint);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .4s}
-.wave-core .bdot{fill:#eafff7;transform-box:fill-box;transform-origin:center}
-.wave-core .flat{opacity:1;transition:opacity .35s}
-.wave-core .beat{opacity:0;transition:opacity .35s}
-.tagging .flat{opacity:0}
-.tagging .beat{opacity:1}
-.tagging .beat .bdot{animation:lubdub 1.4s ease-in-out infinite}
-@keyframes lubdub{0%,45%,100%{transform:scale(1)}12%{transform:scale(1.55)}24%{transform:scale(1)}34%{transform:scale(1.45)}}
-.wave-core.mint{background:var(--mint)}
-.wave-core.mint .trace{stroke:#eafff7}
-.ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--blue);opacity:0}
-/* 물결을 심장 박동(lub-dub)에 동기화 — 두근(.16s) 두근(.46s) … 쉼 */
-.tagging .ring{animation:nfcwave 1.4s ease-out infinite}
-.tagging .ring:nth-child(1){animation-delay:.16s}
-.tagging .ring:nth-child(2){animation-delay:.46s}
-.tagging .ring:nth-child(3){animation:nfcwaveBig 1.4s ease-out infinite;animation-delay:.16s}
-@keyframes nfcwave{0%{transform:scale(.58);opacity:.7}45%{transform:scale(1.28);opacity:0}100%{transform:scale(1.28);opacity:0}}
-@keyframes nfcwaveBig{0%{transform:scale(.58);opacity:.45}45%{transform:scale(1.45);opacity:0}100%{transform:scale(1.45);opacity:0}}
+/* 태그 모니터 — 지난 박동(빨강)+수평선 → 태그 시 녹색으로 살아남 */
+.tag-mon{width:100%;background:#0b1320;border-radius:16px;padding:20px 12px;margin-bottom:6px;overflow:hidden}
+.tag-ecg{width:100%;display:block;overflow:visible}
+.t-past{fill:none;stroke:var(--coral);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(231,91,59,.55));transition:stroke .55s,filter .55s;opacity:.92}
+.tagging .t-past{stroke:var(--mint);filter:drop-shadow(0 0 3px rgba(52,211,153,.6))}
+.t-live{opacity:0;transition:opacity .45s}
+.tagging .t-live{opacity:1}
+.t-livetrace{fill:none;stroke:var(--mint);stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(52,211,153,.85))}
+.t-dot{fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 4px #34d399)}
+.tagging .t-dot{animation:lubdub 1.4s ease-in-out infinite}
+.t-ping{fill:none;stroke:#eafff7;opacity:0;transform-box:fill-box;transform-origin:center}
+.tagging .t-ping.p1{animation:tping 1.4s ease-out .16s infinite}
+.tagging .t-ping.p2{animation:tping 1.4s ease-out .46s infinite}
+@keyframes lubdub{0%,45%,100%{transform:scale(1)}12%{transform:scale(1.5)}24%{transform:scale(1)}34%{transform:scale(1.42)}}
+@keyframes tping{0%{transform:scale(.5);opacity:.7}55%,100%{transform:scale(2.7);opacity:0}}
+/* 출석 심전도 (히스토리) — 닿은 날마다 한 번 뛴다 */
+.ecg-card{background:#0b1320;border:1px solid #0b1320;border-radius:18px;padding:16px 14px;margin-bottom:13px}
+.ecg-card .ecghead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
+.ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
+.ecg-card svg{width:100%;display:block;overflow:visible}
+.h-base{fill:none;stroke:#1c2a3d;stroke-width:1.4}
+.h-beat{fill:none;stroke:#34d399;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(52,211,153,.55))}
+.ecg-cap{font-size:11px;color:#7d93a8;margin-top:10px;line-height:1.55}
+.ecg-cap b{color:#34d399}
 .src-tag{font-size:9px;font-weight:700;color:var(--mint);background:var(--mint-bg);border-radius:5px;padding:2px 6px;margin-left:auto}
 </style>
 </head>
@@ -253,6 +257,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     <div class="kv"><span>현재 누적</span><b id="totalAtt">58회</b></div>
     <div class="kv"><span>나의 반</span><b>매일반 오전 (08–11시)</b></div>
   </div>
+  <div class="sec-title"><h2>출석 심전도</h2><span>닿은 날마다 한 번 뛴다</span></div>
+  <div class="ecg-card">
+    <div class="ecghead"><b>♥ 이번 달 내 박동</b><span id="ecgBpm">14회 닿음</span></div>
+    <svg id="histEcg" viewBox="0 0 320 70"></svg>
+    <div class="ecg-cap" id="ecgCap">규칙적으로 뛰고 있어요 — 닿은 날마다 심장이 한 번씩 뜁니다. <b>빈 구간</b>은 닿지 않아 멈춘 날이에요.</div>
+  </div>
+
   <div class="sec-title"><h2>나의 운동 히스토리</h2><span>결제 이후 모든 성장 기록</span></div>
   <div class="card"><div class="tl">
     <div class="tl-item"><h4>초급 레벨 승급</h4><p>자유형 25m와 호흡 평가 통과 · 박현우 코치</p><div class="when">2026.03</div></div>
@@ -343,7 +354,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 </div><!-- /viewport -->
 
 <div class="overlay" id="tagModal"><div class="sheet">
-  <div class="wave-stage" id="waveStage"><span class="ring"></span><span class="ring"></span><span class="ring"></span><div class="wave-core" id="waveCore"><svg viewBox="0 0 40 26"><g class="flat"><path class="trace" d="M2,16 H38"/><circle class="bdot" cx="20" cy="16" r="2.4"/></g><g class="beat"><path class="trace" d="M2,16 H12 L15,16 L20,5 L25,23 L28,16 H38"/><circle class="bdot" cx="20" cy="5" r="3"/></g></svg></div></div>
+  <div class="tag-mon" id="waveStage">
+    <svg class="tag-ecg" viewBox="0 0 280 84">
+      <path class="t-past" d="M6,46 H32 L38,46 L44,26 L50,64 L56,46 L64,46 L70,28 L76,62 L82,46 H274"/>
+      <g class="t-live">
+        <path class="t-livetrace" d="M150,46 H198 L206,46 L214,22 L222,66 L230,46 H274"/>
+        <circle class="t-ping p1" cx="214" cy="22" r="6" stroke-width="1.5"/>
+        <circle class="t-ping p2" cx="214" cy="22" r="6" stroke-width="1.5"/>
+        <circle class="t-dot" cx="214" cy="22" r="5"/>
+      </g>
+    </svg>
+  </div>
   <h3 id="tagTitle">입구의 닿 태그에 폰을 대주세요</h3>
   <p id="tagDesc">인식이 완료되면 출석과 운동 히스토리가<br>자동으로 기록됩니다.</p>
   <button class="btn blue" id="simulate">태그 시뮬레이션 (NFC)</button>
@@ -413,17 +434,31 @@ document.getElementById('renewBtn').addEventListener('click',function(){
 function dahBeep(off){try{var ac=window._dahAC||(window._dahAC=new(window.AudioContext||window.webkitAudioContext)());
   var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);
   var t=ac.currentTime+off/1000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.start(t);o.stop(t+.13);}catch(e){}}
+/* 출석 심전도 — 닿은 날(1)마다 박동, 빈 날(0)은 멈춤 */
+var DAYS=[1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,1];
+function buildHistEcg(){
+  var svg=document.getElementById('histEcg'); if(!svg)return;
+  var W=320,base=44,n=DAYS.length,seg=W/n,beats='';
+  for(var i=0;i<n;i++){
+    var x0=i*seg,x1=(i+1)*seg;
+    if(DAYS[i]){
+      var a=(x0+seg*0.26).toFixed(1),b=(x0+seg*0.42).toFixed(1),c=(x0+seg*0.56).toFixed(1),e=(x0+seg*0.72).toFixed(1);
+      beats+=' M'+x0.toFixed(1)+','+base+' L'+a+','+base+' L'+b+','+(base-30)+' L'+c+','+(base+16)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+    }
+  }
+  svg.innerHTML='<path class="h-base" d="M0,'+base+' H'+W+'"/><path class="h-beat" d="'+beats.trim()+'"/>';
+}
+buildHistEcg();
+
 document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.classList.add('tagging');
-  document.getElementById('waveCore').classList.remove('mint');
-  document.getElementById('tagTitle').textContent='닿았습니다';
-  document.getElementById('tagDesc').innerHTML='오늘의 도착이 기록되는 중이에요…';
+  document.getElementById('tagTitle').textContent='닿았습니다 · 다시 뜁니다';
+  document.getElementById('tagDesc').innerHTML='멈춰 있던 박동이 다시 시작됐어요…';
   dahBeep(0);dahBeep(180);
   setTimeout(function(){
-    document.getElementById('waveCore').classList.add('mint');
     dahBeep(0);
     document.getElementById('tagTitle').textContent='오늘 출석 완료 · 09:42';
-    document.getElementById('tagDesc').innerHTML='운동 히스토리에 기록됐어요.<br>오늘도 잘 왔어요!';
+    document.getElementById('tagDesc').innerHTML='운동 히스토리에 오늘의 박동이 기록됐어요.<br>오늘도 잘 왔어요!';
     setTimeout(function(){
       document.getElementById('tagModal').classList.remove('show'); stage.classList.remove('tagging');
       var a=document.getElementById('actionCard'); a.classList.add('done');
@@ -434,6 +469,8 @@ document.getElementById('simulate').addEventListener('click',function(){
       document.getElementById('monthVal').textContent='15회';
       document.getElementById('couponCnt').textContent='3장';
       document.getElementById('totalAtt').textContent='59회';
+      DAYS.push(1); buildHistEcg();                 /* 오늘의 박동을 심전도에 추가 */
+      document.getElementById('ecgBpm').textContent='15회 닿음';
       setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
     },1100);
   },1500);
