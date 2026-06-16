@@ -152,6 +152,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .tagging .t-live{opacity:1}
 .t-livetrace{fill:none;stroke:var(--mint);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(52,211,153,.85))}
 .t-dot{fill:#eafff7;transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 4px #34d399)}
+.t-dot-past{fill:#3f7d6f;opacity:0}
+.tagging .t-dot-past{opacity:.85}
 .tagging .t-dot{animation:lubdub 1.4s ease-in-out infinite}
 .t-ping{fill:none;stroke:#eafff7;opacity:0;transform-box:fill-box;transform-origin:center}
 .tagging .t-ping.p1{animation:tping 1.4s ease-out .16s infinite}
@@ -164,10 +166,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
 .ecg-card svg{width:100%;display:block;overflow:visible}
-.h-base{fill:none;stroke:#1c2a3d;stroke-width:1.4}
-.h-beat{fill:none;stroke:#34d399;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(52,211,153,.55))}
-.ecg-cap{font-size:11px;color:#7d93a8;margin-top:10px;line-height:1.55}
-.ecg-cap b{color:#34d399}
+.h-base{fill:none;stroke:#34d399;opacity:.15;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.h-glow{fill:none;stroke:#34d399;opacity:.5;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60 940;filter:drop-shadow(0 0 4px rgba(52,211,153,.7));animation:hrun 6s linear infinite}
+.h-head{fill:none;stroke:#eafff7;opacity:.95;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:10 990;filter:drop-shadow(0 0 6px #34d399);animation:hhead 6s linear infinite}
+@keyframes hrun{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+@keyframes hhead{from{stroke-dashoffset:1052}to{stroke-dashoffset:52}}
+.h-day{fill:#6b8298;font-size:12px;font-weight:600}
+.ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
+.ecg-cap.warn{color:#f0997b}
+.ecg-cap .lvl{display:block;font-size:10.5px;color:#5b7187;font-weight:500;margin-top:3px}
 .src-tag{font-size:9px;font-weight:700;color:var(--mint);background:var(--mint-bg);border-radius:5px;padding:2px 6px;margin-left:auto}
 </style>
 </head>
@@ -260,8 +267,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
   <div class="sec-title"><h2>출석 심전도</h2><span>닿은 날마다 한 번 뛴다</span></div>
   <div class="ecg-card">
     <div class="ecghead"><b>♥ 이번 달 내 박동</b><span id="ecgBpm">14회 닿음</span></div>
-    <svg id="histEcg" viewBox="0 0 320 70"></svg>
-    <div class="ecg-cap" id="ecgCap">규칙적으로 뛰고 있어요 — 닿은 날마다 심장이 한 번씩 뜁니다. <b>빈 구간</b>은 닿지 않아 멈춘 날이에요.</div>
+    <svg id="histEcg" viewBox="0 0 480 104"></svg>
+    <div class="ecg-cap" id="ecgCap"></div>
   </div>
 
   <div class="sec-title"><h2>나의 운동 히스토리</h2><span>결제 이후 모든 성장 기록</span></div>
@@ -359,9 +366,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
       <path class="t-past" d="M0,26 H34 L40,10 L46,36 L52,26 H62 L120,26"/>
       <g class="t-live">
         <path class="t-livetrace" d="M0,26 H30 L36,26 L42,10 L48,36 L54,26 H64 L70,10 L76,36 L82,26 H120"/>
-        <circle class="t-ping p1" cx="42" cy="10" r="3" stroke-width="1"/>
-        <circle class="t-ping p2" cx="42" cy="10" r="3" stroke-width="1"/>
-        <circle class="t-dot" cx="42" cy="10" r="2.6"/>
+        <circle class="t-dot-past" cx="42" cy="10" r="2.3"/>
+        <circle class="t-ping p1" cx="70" cy="10" r="3" stroke-width="1"/>
+        <circle class="t-ping p2" cx="70" cy="10" r="3" stroke-width="1"/>
+        <circle class="t-dot" cx="70" cy="10" r="2.6"/>
       </g>
     </svg>
   </div>
@@ -434,19 +442,32 @@ document.getElementById('renewBtn').addEventListener('click',function(){
 function dahBeep(off){try{var ac=window._dahAC||(window._dahAC=new(window.AudioContext||window.webkitAudioContext)());
   var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);
   var t=ac.currentTime+off/1000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.start(t);o.stop(t+.13);}catch(e){}}
-/* 출석 심전도 — 닿은 날(1)마다 박동, 빈 날(0)은 멈춤 */
-var DAYS=[1,1,0,1,1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,1];
+/* 출석 심전도 — 이번 달, 닿은 날(ATT)마다 박동 / 빛이 박동을 따라 계속 흐름 */
+var TOTAL=24;                                   /* 이번 달 표시 일수 */
+var ATT=[2,3,5,6,8,10,11,13,15,16,18,20,22,23]; /* 닿은 날(일) */
 function buildHistEcg(){
   var svg=document.getElementById('histEcg'); if(!svg)return;
-  var W=320,base=44,n=DAYS.length,seg=W/n,beats='';
-  for(var i=0;i<n;i++){
-    var x0=i*seg,x1=(i+1)*seg;
-    if(DAYS[i]){
-      var a=(x0+seg*0.26).toFixed(1),b=(x0+seg*0.42).toFixed(1),c=(x0+seg*0.56).toFixed(1),e=(x0+seg*0.72).toFixed(1);
-      beats+=' M'+x0.toFixed(1)+','+base+' L'+a+','+base+' L'+b+','+(base-30)+' L'+c+','+(base+16)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
-    }
+  var W=480,base=50,seg=W/TOTAL,d='M0,'+base,labels='';
+  for(var day=1;day<=TOTAL;day++){
+    var i=day-1,x0=i*seg,x1=(i+1)*seg,cx=(x0+seg*0.5).toFixed(1);
+    if(ATT.indexOf(day)>=0){
+      var a=(x0+seg*0.30).toFixed(1),b=(x0+seg*0.44).toFixed(1),c=(x0+seg*0.58).toFixed(1),e=(x0+seg*0.72).toFixed(1);
+      d+=' L'+a+','+base+' L'+b+','+(base-28)+' L'+c+','+(base+18)+' L'+e+','+base+' L'+x1.toFixed(1)+','+base;
+      labels+='<text class="h-day" text-anchor="middle" x="'+cx+'" y="92">'+day+'</text>';
+    } else { d+=' L'+x1.toFixed(1)+','+base; }
   }
-  svg.innerHTML='<path class="h-base" d="M0,'+base+' H'+W+'"/><path class="h-beat" d="'+beats.trim()+'"/>';
+  svg.innerHTML='<path class="h-base" d="'+d+'"/><path class="h-glow" pathLength="1000" d="'+d+'"/><path class="h-head" pathLength="1000" d="'+d+'"/>'+labels;
+  updateEcgCap();
+}
+function updateEcgCap(){
+  var el=document.getElementById('ecgCap'); if(!el)return;
+  var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,warn=false;
+  if(cnt<=3){msg='새로운 심장박동이 시작 되었어요!';lvl='굉장히 드문 정기성';}
+  else if(ratio>=0.7){msg='역동적으로 심장이 날뛰고 있어요!';lvl='매우 높은 정기성';}
+  else if(ratio>=0.45){msg='안정적인 심장 박동이 이어지네요!';lvl='좋은 정기성';}
+  else {msg='심장이 멈추지 않도록 닿아 주세요!';lvl='낮은 정기성';warn=true;}
+  el.className='ecg-cap'+(warn?' warn':'');
+  el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번 달 '+cnt+'회 닿음</span>';
 }
 buildHistEcg();
 
@@ -469,7 +490,7 @@ document.getElementById('simulate').addEventListener('click',function(){
       document.getElementById('monthVal').textContent='15회';
       document.getElementById('couponCnt').textContent='3장';
       document.getElementById('totalAtt').textContent='59회';
-      DAYS.push(1); buildHistEcg();                 /* 오늘의 박동을 심전도에 추가 */
+      TOTAL+=1; ATT.push(TOTAL); buildHistEcg();    /* 오늘의 박동을 심전도에 추가 */
       document.getElementById('ecgBpm').textContent='15회 닿음';
       setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
     },1100);
