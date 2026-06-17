@@ -472,7 +472,11 @@ document.getElementById('renewBtn').addEventListener('click',function(){
 });
 
 /* 태그 → 출석 연출 */
-function getAC(){return window._dahAC||(window._dahAC=new(window.AudioContext||window.webkitAudioContext)());}
+function getAC(){var c=window._dahAC||(window._dahAC=new(window.AudioContext||window.webkitAudioContext)());if(c.state==='suspended')c.resume();return c;}
+/* 태그 성공음 — 두둥(심박 2번) + 말랑한 마림바 두 음(샘플 5) */
+function _thumpS(t,f,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f*1.7,t);o.frequency.exponentialRampToValueAtTime(f,t+0.06);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+0.19);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.24);}
+function _toneS(t,f,dur,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.014);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+0.05);}
+function tagChime(){var ac=getAC(),t=ac.currentTime+0.02;_thumpS(t,86,0.6);_thumpS(t+0.17,66,0.48);var s=t+0.49;_toneS(s,1046,0.32,0.34);_toneS(s+0.12,1568,0.5,0.34);}
 function dahBeep(off){try{var ac=getAC();
   var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);
   var t=ac.currentTime+off/1000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.12);o.start(t);o.stop(t+.13);}catch(e){}}
@@ -503,7 +507,7 @@ function runDefib(){
       st.classList.remove('shock'); st.classList.add('revive');   /* 녹색 박동이 그려지며 소생 */
       dCap('');
       document.getElementById('tagTitle').textContent='박동이 새롭게 시작됐어요!';
-      dahBeep(0);dahBeep(220);
+      tagChime();
       setTimeout(function(){
         st.className='tag-mon'; st.id='waveStage';
         finishTag();
@@ -599,7 +603,7 @@ document.getElementById('simulate').addEventListener('click',function(){
   var stage=document.getElementById('waveStage'); stage.className='tag-mon'; stage.id='waveStage';
   void stage.offsetWidth; stage.classList.add('tagging');   /* 평선 → 녹색 심박이 빠르게 그려짐 */
   document.getElementById('tagTitle').textContent='닿았습니다!';
-  dahBeep(0);dahBeep(150);dahBeep(300);   /* 삐삐삐 */
+  tagChime();   /* 두둥 + 삥~🌟 */
   setTimeout(function(){
     document.getElementById('tagTitle').textContent='운동 히스토리에 기록됐어요 · 09:42';
     setTimeout(function(){
