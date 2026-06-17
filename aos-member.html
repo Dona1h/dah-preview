@@ -590,9 +590,20 @@ function setEcgGlow(maxGlow,isCele){
   if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;}
   if(_heart){clearInterval(_heart);_heart=null;}
   var card=document.querySelector('.ecg-card'); if(!card)return;
-  if(isCele){                                                  /* 매우 낮음: 글로우는 CSS defibcard, 소리는 일반 심박 두둥…두둥 */
+  if(isCele){                                                  /* 매우 낮음: 글로우는 CSS defibcard(1.5s) — 소리도 같은 불빛 박자에 맞춤 */
     card.style.boxShadow='';
-    _heart=setInterval(function(){ if(!ecgMuted) ecgThump(0.16); }, 920);   /* ≈65bpm 휴식 심박 */
+    var cper=1500,cp1=cper*0.07,cp2=cper*0.40,cstart=performance.now(),cprev=-1;   /* 불빛 플래시: 7%(두)·40%(둥) */
+    function fireAt(ph,prev,p){ return prev<0?false:(prev<=ph?(p>prev&&p<=ph):(p>prev||p<=ph)); }
+    function ctick(now){
+      var ph=(now-cstart)%cper,ac;
+      if(!ecgMuted){
+        if(fireAt(ph,cprev,cp1)){ac=getAC();_thumpS(ac.currentTime+0.005,82,0.34);}   /* 두 — 강한 플래시(7%) */
+        if(fireAt(ph,cprev,cp2)){ac=getAC();_thumpS(ac.currentTime+0.005,62,0.24);}   /* 둥 — 두 번째 플래시(40%) */
+      }
+      cprev=ph;
+      _ecgRaf=requestAnimationFrame(ctick);
+    }
+    _ecgRaf=requestAnimationFrame(ctick);
     return;
   }
   var W=480,seg=W/TOTAL,period=4500,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
