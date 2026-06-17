@@ -173,8 +173,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
-.ecg-mute{margin-left:auto;border:1px solid #243348;background:#101c2e;border-radius:99px;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-.ecg-mute.on{border-color:#34d399;background:#10271f}
+/* 음소거 토글 — 심전도기 패널 LED 스타일 */
+.ecg-mute{margin-left:auto;display:flex;align-items:center;gap:6px;background:#071710;border:1px solid #173528;border-radius:8px;padding:5px 9px;cursor:pointer;box-shadow:inset 0 0 8px rgba(0,0,0,.55)}
+.ecg-mute .led{width:6px;height:6px;border-radius:50%;background:#3a4a43;transition:.2s}
+.ecg-mute.on{border-color:#1d6e51;background:#08231a}
+.ecg-mute.on .led{background:#34d399;box-shadow:0 0 7px #34d399}
+.ecg-mute .spk{width:14px;height:14px;display:block}
+.ecg-mute .spk path{fill:#5b7187}
+.ecg-mute .spk .wv{fill:none;stroke:#5b7187;stroke-width:1.3;stroke-linecap:round;display:none}
+.ecg-mute .spk .sl{stroke:#5b7187;stroke-width:1.3;stroke-linecap:round}
+.ecg-mute.on .spk path{fill:#9fe7d3}
+.ecg-mute.on .spk .wv{stroke:#34d399;display:block}
+.ecg-mute.on .spk .sl{display:none}
 .ecg-card svg{width:100%;display:block;overflow:visible}
 .h-base{fill:none;stroke:#34d399;opacity:.13;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* 불빛 선 — 가장 밝은 부분이 선두(앞), 잔광이 뒤로 흐려짐 */
@@ -190,18 +200,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .h-base-green{fill:none;stroke:#34d399;opacity:.45;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .h-day{fill:#6b8298;font-size:12px;font-weight:600}
 .ecg-cap{font-size:12.5px;color:#9fe7d3;margin-top:11px;line-height:1.5;font-weight:700}
-.ecg-cap .lvl{display:block;font-size:10.5px;color:#5b7187;font-weight:500;margin-top:3px}
-/* 구간별 메인+서브 색 조합 — 심전도(녹색)와 조화, 너무 튀지 않게 / 낮음은 빨강 */
-.ecg-cap.cap-vhigh{color:#34d399}.ecg-cap.cap-vhigh .lvl{color:#1d9e75}
-.ecg-cap.cap-high{color:#5dcaa5}.ecg-cap.cap-high .lvl{color:#1d9e75}
-.ecg-cap.cap-low{color:#e75b3b}.ecg-cap.cap-low .lvl{color:#b0604c}
+/* 하단 설명 — 흐릿·밝은 회색(녹색 줄임)으로 물러나, 상단 큰 텍스트에 집중 */
+.ecg-cap .lvl{display:block;font-size:10.5px;color:#d4dde7;opacity:.46;font-weight:500;margin-top:3px}
+/* 구간별 메인 색 — 심전도(녹색)와 조화, 너무 튀지 않게 / 낮음은 빨강 */
+.ecg-cap.cap-vhigh{color:#34d399}
+.ecg-cap.cap-high{color:#5dcaa5}
+.ecg-cap.cap-low{color:#e75b3b}
 /* 새 박동 — 박동선이 에너지로 솟구치고 카드가 번쩍임 */
 .ecg-card.celebrate{animation:defibcard 1.5s ease-out infinite}
 @keyframes defibcard{0%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}7%{box-shadow:inset 0 0 48px 5px rgba(52,211,153,.55)}24%{box-shadow:inset 0 0 18px 1px rgba(52,211,153,.18)}40%{box-shadow:inset 0 0 40px 4px rgba(52,211,153,.45)}100%{box-shadow:inset 0 0 0 0 rgba(52,211,153,0)}}
 .ecg-card.celebrate .h-greenbeat{animation:defibjolt 1.5s ease-out infinite}
 @keyframes defibjolt{0%{stroke-width:2.6;opacity:.4;filter:drop-shadow(0 0 3px #34d399)}7%{stroke-width:6.5;opacity:1;filter:drop-shadow(0 0 16px #eafff7)}22%{stroke-width:3;opacity:.7;filter:drop-shadow(0 0 5px #34d399)}40%{stroke-width:5.5;opacity:1;filter:drop-shadow(0 0 13px #34d399)}65%{stroke-width:2.8;opacity:.5}100%{stroke-width:2.6;opacity:.4;filter:drop-shadow(0 0 3px #34d399)}}
-.ecg-cap.celebrate{color:#eafff7;font-size:13.5px}
-.ecg-cap.celebrate .lvl{color:#34d399}
+.ecg-cap.celebrate{color:#eafff7}
 .ecg-demo{display:flex;gap:6px;margin-top:13px;flex-wrap:wrap}
 .ecg-demo .lab{flex-basis:100%;font-size:9.5px;color:#5b7187;font-weight:600;margin-bottom:1px}
 .ecg-demo button{flex:1;min-width:60px;border:1px solid #243348;background:#101c2e;color:#7d93a8;font-family:inherit;font-size:10.5px;font-weight:700;border-radius:9px;padding:7px 4px;cursor:pointer}
@@ -297,7 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
   </div>
   <div class="sec-title"><h2>출석 심전도</h2><span>닿은 날마다 한 번 뛴다</span></div>
   <div class="ecg-card">
-    <div class="ecghead"><b>♥ 이번 달 내 박동</b><button id="ecgMute" class="ecg-mute" aria-label="박동 소리">🔇</button></div>
+    <div class="ecghead"><b>♥ 이번 달 내 박동</b><button id="ecgMute" class="ecg-mute" aria-label="박동 소리"><span class="led"></span><svg class="spk" viewBox="0 0 16 16"><path d="M3.5 6 H6 L9 3.2 V12.8 L6 10 H3.5 Z"/><path class="wv" d="M11 5.2 Q13 8 11 10.8"/><line class="sl" x1="10.5" y1="4" x2="14" y2="12"/></svg></button></div>
     <svg id="histEcg" viewBox="0 0 480 104"></svg>
     <div class="ecg-cap" id="ecgCap"></div>
     <div class="ecg-demo">
@@ -573,13 +583,20 @@ function updateEcgCap(){
   setEcgGlow(glow,cele);
 }
 /* 박스 주변부 글로우 — 스윕이 박동을 지나는 순간 밝아짐 + (음소거 해제 시) 두둥 박동음 동기 재생 */
-var _ecgRaf=null, ecgMuted=true;
-function ecgThump(){var ac=getAC(),t=ac.currentTime+0.005;_thumpS(t,82,0.34);_thumpS(t+0.12,62,0.24);}   /* 두둥 (lub-dub) */
+var _ecgRaf=null,_heart=null,ecgMuted=true;
+/* 항상 '두둥'(lub-dub). dub 간격이 좁으면 드럼 더블, 넓으면 심박 리듬 */
+function ecgThump(dub){var ac=getAC(),t=ac.currentTime+0.005;_thumpS(t,82,0.34);_thumpS(t+(dub||0.14),62,0.24);}
 function setEcgGlow(maxGlow,isCele){
   if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;}
+  if(_heart){clearInterval(_heart);_heart=null;}
   var card=document.querySelector('.ecg-card'); if(!card)return;
-  if(isCele){card.style.boxShadow='';return;}                 /* 매우 낮음은 CSS defibcard가 처리 */
+  if(isCele){                                                  /* 매우 낮음: 글로우는 CSS defibcard, 소리는 일반 심박 두둥…두둥 */
+    card.style.boxShadow='';
+    _heart=setInterval(function(){ if(!ecgMuted) ecgThump(0.16); }, 920);   /* ≈65bpm 휴식 심박 */
+    return;
+  }
   var W=480,seg=W/TOTAL,period=4500,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
+  var dub=Math.min(0.16,Math.max(0.06,(period/1000/ATT.length)*0.38));   /* 밀도↑→좁은 더블, 밀도↓→심박 리듬 */
   var start=performance.now(),prevL=0;
   function tick(now){
     var L=(((now-start)%period)/period)*W,d=1e9,i,bx;
@@ -587,7 +604,7 @@ function setEcgGlow(maxGlow,isCele){
     var g=d<16?maxGlow*(1-d/16):0;
     card.style.boxShadow=g>0.012?'inset 0 0 38px 4px rgba(52,211,153,'+g.toFixed(3)+')':'inset 0 0 0 0 rgba(52,211,153,0)';
     var wrap=L<prevL;
-    if(!ecgMuted){ for(i=0;i<beatX.length;i++){ bx=beatX[i]; if(wrap?(bx>prevL||bx<=L):(bx>prevL&&bx<=L)) ecgThump(); } }
+    if(!ecgMuted){ for(i=0;i<beatX.length;i++){ bx=beatX[i]; if(wrap?(bx>prevL||bx<=L):(bx>prevL&&bx<=L)) ecgThump(dub); } }
     prevL=L;
     _ecgRaf=requestAnimationFrame(tick);
   }
@@ -597,9 +614,8 @@ buildHistEcg();
 /* 박동 소리 음소거 토글 — 기본 음소거, 누르면 스윕 박동에 맞춰 두둥 재생 */
 document.getElementById('ecgMute').addEventListener('click',function(){
   ecgMuted=!ecgMuted;
-  this.textContent=ecgMuted?'🔇':'🔊';
-  this.classList.toggle('on',!ecgMuted);
-  if(!ecgMuted)getAC();   /* 사용자 제스처로 오디오 활성화 */
+  this.classList.toggle('on',!ecgMuted);   /* LED·스피커 점등 */
+  if(!ecgMuted)getAC();                     /* 사용자 제스처로 오디오 활성화 */
 });
 /* 정기성 미리보기 데모 */
 document.querySelectorAll('.ecg-demo button').forEach(function(b){
