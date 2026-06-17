@@ -173,6 +173,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
 .ecg-card .ecghead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
 .ecg-card .ecghead b{font-size:12.5px;font-weight:700;color:#34d399}
 .ecg-card .ecghead span{font-size:10.5px;color:#5b7187;margin-left:auto}
+.ecg-mute{margin-left:auto;border:1px solid #243348;background:#101c2e;border-radius:99px;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.ecg-mute.on{border-color:#34d399;background:#10271f}
 .ecg-card svg{width:100%;display:block;overflow:visible}
 .h-base{fill:none;stroke:#34d399;opacity:.13;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* 불빛 선 — 가장 밝은 부분이 선두(앞), 잔광이 뒤로 흐려짐 */
@@ -295,7 +297,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
   </div>
   <div class="sec-title"><h2>출석 심전도</h2><span>닿은 날마다 한 번 뛴다</span></div>
   <div class="ecg-card">
-    <div class="ecghead"><b>♥ 이번 달 내 박동</b><span id="ecgBpm">14회 닿음</span></div>
+    <div class="ecghead"><b>♥ 이번 달 내 박동</b><button id="ecgMute" class="ecg-mute" aria-label="박동 소리">🔇</button></div>
     <svg id="histEcg" viewBox="0 0 480 104"></svg>
     <div class="ecg-cap" id="ecgCap"></div>
     <div class="ecg-demo">
@@ -562,39 +564,49 @@ function updateEcgCap(){
   var card=document.querySelector('.ecg-card');
   var cnt=ATT.length,ratio=cnt/TOTAL,msg,lvl,cele=false,glow=0,capCls;
   if(cnt<=3){msg='박동이 새롭게 뛰기 시작했어요!';lvl='지금부터 이어가요';cele=true;capCls='celebrate';}   /* 매우 낮음(멤버엔 분류명 미노출) */
-  else if(ratio>=0.7){msg='역동적인 박동이 날뛰고 있어요!';lvl='그 무엇도 나를 막지 못해요';glow=.16;capCls='cap-vhigh';}
-  else if(ratio>=0.45){msg='안정적으로 박동이 이어지고 있어요!';lvl='좋은 리듬이 만들어졌어요';glow=.21;capCls='cap-high';}
-  else {msg='성장이 연결되도록 더 닿아 주세요!';lvl='닿으면 반드시 쌓여요';glow=.32;capCls='cap-low';}
+  else if(ratio>=0.7){msg='역동적인 박동이 날뛰고 있어요!';lvl='그 무엇도 나를 막지 못해요';glow=.21;capCls='cap-vhigh';}   /* +30% */
+  else if(ratio>=0.45){msg='안정적으로 박동이 이어지고 있어요!';lvl='좋은 리듬이 만들어졌어요';glow=.27;capCls='cap-high';}     /* +30% */
+  else {msg='성장이 연결되도록 더 닿아 주세요!';lvl='닿으면 반드시 쌓여요';glow=.42;capCls='cap-low';}                       /* +30% */
   el.className='ecg-cap '+capCls;
   el.innerHTML=msg+'<span class="lvl">'+lvl+' · 이번달 '+cnt+'회 닿!</span>';
   if(card) card.className=cele?'ecg-card celebrate':'ecg-card';
   setEcgGlow(glow,cele);
 }
-/* 박스 주변부 글로우 — 스윕이 박동을 지나는 순간 밝아짐 (매우 낮음의 박동 동기 방식과 동일) */
-var _ecgRaf=null;
+/* 박스 주변부 글로우 — 스윕이 박동을 지나는 순간 밝아짐 + (음소거 해제 시) 두둥 박동음 동기 재생 */
+var _ecgRaf=null, ecgMuted=true;
+function ecgThump(){var ac=getAC(),t=ac.currentTime+0.005;_thumpS(t,82,0.34);_thumpS(t+0.12,62,0.24);}   /* 두둥 (lub-dub) */
 function setEcgGlow(maxGlow,isCele){
   if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;}
   var card=document.querySelector('.ecg-card'); if(!card)return;
   if(isCele){card.style.boxShadow='';return;}                 /* 매우 낮음은 CSS defibcard가 처리 */
   var W=480,seg=W/TOTAL,period=4500,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
-  var start=performance.now();
+  var start=performance.now(),prevL=0;
   function tick(now){
-    var L=(((now-start)%period)/period)*W,d=1e9,i;
+    var L=(((now-start)%period)/period)*W,d=1e9,i,bx;
     for(i=0;i<beatX.length;i++){var dd=Math.abs(beatX[i]-L); if(dd<d)d=dd;}
     var g=d<16?maxGlow*(1-d/16):0;
     card.style.boxShadow=g>0.012?'inset 0 0 38px 4px rgba(52,211,153,'+g.toFixed(3)+')':'inset 0 0 0 0 rgba(52,211,153,0)';
+    var wrap=L<prevL;
+    if(!ecgMuted){ for(i=0;i<beatX.length;i++){ bx=beatX[i]; if(wrap?(bx>prevL||bx<=L):(bx>prevL&&bx<=L)) ecgThump(); } }
+    prevL=L;
     _ecgRaf=requestAnimationFrame(tick);
   }
   _ecgRaf=requestAnimationFrame(tick);
 }
 buildHistEcg();
+/* 박동 소리 음소거 토글 — 기본 음소거, 누르면 스윕 박동에 맞춰 두둥 재생 */
+document.getElementById('ecgMute').addEventListener('click',function(){
+  ecgMuted=!ecgMuted;
+  this.textContent=ecgMuted?'🔇':'🔊';
+  this.classList.toggle('on',!ecgMuted);
+  if(!ecgMuted)getAC();   /* 사용자 제스처로 오디오 활성화 */
+});
 /* 정기성 미리보기 데모 */
 document.querySelectorAll('.ecg-demo button').forEach(function(b){
   b.addEventListener('click',function(){
     document.querySelectorAll('.ecg-demo button').forEach(function(x){x.classList.remove('on');});
     b.classList.add('on');
     ATT=ECG_STATES[b.dataset.eg].slice();
-    document.getElementById('ecgBpm').textContent=ATT.length+'회 닿음';
     buildHistEcg();
   });
 });
@@ -610,7 +622,6 @@ document.getElementById('simulate').addEventListener('click',function(){
       document.getElementById('tagModal').classList.remove('show');
       finishTag();
       TOTAL+=1; ATT.push(TOTAL); buildHistEcg();    /* 오늘의 박동을 심전도에 추가 */
-      document.getElementById('ecgBpm').textContent='15회 닿음';
       setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
     },900);
   },1300);
