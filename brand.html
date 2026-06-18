@@ -64,6 +64,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;back
 .brow{display:flex;gap:8px;justify-content:center}
 .tagbtn.alt{background:#1a2436;color:#f0997b;border:1px solid #4a2b22}
 .demo .note{font-size:10.5px;color:#5b7187;margin-top:11px;line-height:1.5}
+.escr{height:100px;position:relative;border-radius:12px;overflow:hidden;background:#0b1320;background-image:linear-gradient(rgba(45,212,191,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(45,212,191,.05) 1px,transparent 1px);background-size:18px 18px}
+.escr svg{width:100%;height:100%;display:block}
+.bbase{fill:none;stroke:#34d399;stroke-width:2.2;opacity:.16;stroke-linecap:round;stroke-linejoin:round}
+.bspk{fill:none;stroke:#34d399;stroke-width:2.6;opacity:.22;stroke-linecap:round;stroke-linejoin:round;transition:opacity .45s,stroke .45s,filter .45s}
+.bspk.lit{opacity:1;stroke:#eafff7;filter:drop-shadow(0 0 8px #34d399);transition:none}
+.bspk.litd{opacity:1;stroke:#5dcaa5;filter:drop-shadow(0 0 5px #34d399);transition:none}
+.bsweep{fill:url(#bswg);opacity:0}
+.bsweep.run{opacity:1;animation:bsweepmv var(--dur,3.2s) linear forwards}
+@keyframes bsweepmv{from{transform:translateX(-44px)}to{transform:translateX(500px)}}
+.tagbtn.alt2{background:#2a1f12;color:#efb368;border:1px solid #4a3a1f}
 </style></head><body><div class="wrap">
 
 <div class="title"><h1>닿 Dah · 브랜드</h1><p>닿을 때마다 심장이 뛴다 — 출석이 곧 생존</p></div>
@@ -126,10 +136,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;back
   </div>
   <div class="msg" id="bMsg">입구의 닿! 태그에 폰을 대주세요</div>
   <div class="brow">
-    <button class="tagbtn" id="bTagNormal">일반 태그</button>
-    <button class="tagbtn alt" id="bTagFirst">💥 첫 태그</button>
+    <button class="tagbtn" id="bTagNormal">휴먼 심장 박동 ver.</button>
+    <button class="tagbtn alt" id="bTagFirst">개구리 심장 전기 충격 ver.</button>
   </div>
-  <div class="note">일반 태그 — 닿으면 박동이 그려지고 두둥+삥 / 첫 태그 — 비이잉~ 충전 → 뿅! → 따당·따당(개구리 심장). 소리는 버튼을 누르면 켜집니다.</div>
+  <div class="note">휴먼 심장 박동 — 닿으면 박동이 그려지고 두둥+삥 / 개구리 심장 전기 충격 — 비이잉~ 충전(1.5s) → 뿅! → 따당·따당(빠르게 두 번 ×2). 소리는 버튼을 누르면 켜집니다.</div>
+</div>
+
+<div class="sec">출석 심전도 — 회원앱 샘플 (눌러보세요)</div>
+<div class="demo">
+  <div class="escr"><svg id="bEcg" viewBox="0 0 480 100" preserveAspectRatio="none"></svg></div>
+  <div class="msg" id="bEcgMsg">버튼을 누르면 빛이 지나가며 박동음이 울립니다</div>
+  <div class="brow">
+    <button class="tagbtn" id="bEcgMon">심전도기 ver.</button>
+    <button class="tagbtn alt2" id="bEcgGun">따발총 ver.</button>
+  </div>
+  <div class="note">심전도기 — 박동마다 하이톤 삐익(현재 출석 심전도) / 따발총 — 붙은 박동은 다다다, 묶음의 끝·홀로 있는 건 닿! → 다다다닿! 다다닿! 닿! 다다다다다다다닿!</div>
 </div>
 
 <div class="sec">컨셉</div>
@@ -170,10 +191,10 @@ function beepDada(t){_hit(t,1100,1040,0.4);_hit(t+0.06,900,855,0.34);}
 function tagChime(){var ac=getAC(),t=ac.currentTime+0.02;_thumpS(t,86,0.6);_thumpS(t+0.17,66,0.48);var s=t+0.49;_toneS(s,1046,0.32,0.34);_toneS(s+0.12,1568,0.5,0.34);}
 function chargeSound(){try{var ac=getAC(),t=ac.currentTime;
   var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1300;lp.Q.value=0.25;
-  var g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.1,t+0.5);g.gain.linearRampToValueAtTime(.085,t+1.35);g.gain.exponentialRampToValueAtTime(.0001,t+1.66);
+  var g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.1,t+0.45);g.gain.linearRampToValueAtTime(.085,t+1.2);g.gain.exponentialRampToValueAtTime(.0001,t+1.5);
   lp.connect(g);g.connect(ac.destination);
-  var o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(262,t);o.frequency.exponentialRampToValueAtTime(523,t+1.4);o.connect(lp);o.start(t);o.stop(t+1.7);
-  var o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(175,t);o2.frequency.exponentialRampToValueAtTime(349,t+1.4);g2.gain.value=0.45;o2.connect(g2);g2.connect(lp);o2.start(t);o2.stop(t+1.7);
+  var o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(262,t);o.frequency.exponentialRampToValueAtTime(523,t+1.25);o.connect(lp);o.start(t);o.stop(t+1.52);
+  var o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(175,t);o2.frequency.exponentialRampToValueAtTime(349,t+1.25);g2.gain.value=0.45;o2.connect(g2);g2.connect(lp);o2.start(t);o2.stop(t+1.52);
 }catch(e){}}
 function shockSound(){try{var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';var t=ac.currentTime;o.frequency.setValueAtTime(660,t);o.frequency.exponentialRampToValueAtTime(990,t+0.1);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.14,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.32);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.34);}catch(e){}}
 function bReset(){bStage.className='scr bstage';bCapSet('');}
@@ -193,12 +214,34 @@ function bFirstTag(){if(bBusy)return;bBusy=true;getAC();
     setTimeout(function(){
       bStage.classList.remove('shock');bStage.classList.add('revive');bCapSet('');
       bMsg.textContent='박동이 새롭게 시작됐어요!';
-      var ac=getAC(),t=ac.currentTime+0.18;[0,0.5,1.0].forEach(function(go){beepDada(t+go);beepDada(t+go+0.2);});
-      setTimeout(function(){bReset();bMsg.textContent='입구의 닿! 태그에 폰을 대주세요';bBusy=false;},2800);
+      var ac=getAC(),t=ac.currentTime+0.18;[0,0.5].forEach(function(go){beepDada(t+go);beepDada(t+go+0.2);});
+      setTimeout(function(){bReset();bMsg.textContent='입구의 닿! 태그에 폰을 대주세요';bBusy=false;},2200);
     },620);
-  },1750);
+  },1500);
 }
 document.getElementById('bTagNormal').addEventListener('click',bNormalTag);
 document.getElementById('bTagFirst').addEventListener('click',bFirstTag);
+
+function _beepS(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1046,t);o.frequency.exponentialRampToValueAtTime(980,t+0.13);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.4,t+0.005);g.gain.exponentialRampToValueAtTime(0.0006,t+0.13);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.16);}
+function _tick(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(1360,t+0.04);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.28,t+0.003);g.gain.exponentialRampToValueAtTime(0.0006,t+0.045);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.07);}
+function bBuildEcg(beats){var W=480,base=55,d='M0,'+base,spikes='';
+  beats.forEach(function(bt,i){var x=bt.x;d+=' L'+(x-7)+','+base+' L'+(x-3)+','+(base-26)+' L'+(x+2)+','+(base+16)+' L'+(x+6)+','+base;
+    spikes+='<path class="bspk" id="bspk'+i+'" d="M'+(x-9)+','+base+' L'+(x-3)+','+(base-26)+' L'+(x+2)+','+(base+16)+' L'+(x+8)+','+base+'"/>';});
+  d+=' L'+W+','+base;
+  document.getElementById('bEcg').innerHTML='<defs><linearGradient id="bswg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#34d399" stop-opacity="0"/><stop offset="0.7" stop-color="#34d399" stop-opacity="0.12"/><stop offset="1" stop-color="#eafff7" stop-opacity="0.5"/></linearGradient></defs><path class="bbase" d="'+d+'"/>'+spikes+'<rect class="bsweep" id="bSweep" x="0" y="0" width="44" height="100"/>';}
+var bEcgBusy=false;
+function bPlayEcg(beats,period,mode){if(bEcgBusy)return;bEcgBusy=true;getAC();
+  var sw=document.getElementById('bSweep');if(sw){sw.classList.remove('run');void sw.getBBox();sw.style.setProperty('--dur',period+'s');sw.classList.add('run');}
+  var ac=getAC(),t0=ac.currentTime+0.05,W=480;
+  beats.forEach(function(bt,i){var dt=(bt.x/W)*period;
+    if(mode==='mon'){_beepS(t0+dt);} else { if(bt.type==='da')_tick(t0+dt); else _beepS(t0+dt); }
+    setTimeout(function(){var s=document.getElementById('bspk'+i);if(s){s.classList.add(bt.type==='da'?'litd':'lit');setTimeout(function(){s.classList.remove('lit');s.classList.remove('litd');},240);}},Math.max(0,dt*1000));});
+  document.getElementById('bEcgMsg').textContent=(mode==='mon')?'심전도기 — 박동마다 하이톤 삐익':'따발총 — 다다다닿! 다다닿! 닿! 다다다다다다다닿!';
+  setTimeout(function(){bEcgBusy=false;},period*1000+300);}
+var ECG_MON=[],i;for(i=0;i<10;i++)ECG_MON.push({x:30+i*46,type:'beep'});
+var ECG_GUN=[],runs=[4,3,1,8],gx=22;runs.forEach(function(n){for(var j=0;j<n;j++){ECG_GUN.push({x:gx,type:(j===n-1)?'dah':'da'});gx+=15;}gx+=37;});
+document.getElementById('bEcgMon').addEventListener('click',function(){bBuildEcg(ECG_MON);bPlayEcg(ECG_MON,3.5,'mon');});
+document.getElementById('bEcgGun').addEventListener('click',function(){bBuildEcg(ECG_GUN);bPlayEcg(ECG_GUN,3.0,'gun');});
+bBuildEcg(ECG_MON);
 </script>
 </body></html>
