@@ -490,6 +490,9 @@ function _thumpS(t,f,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGai
 function _toneS(t,f,dur,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+0.014);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+0.05);}
 /* 박동음 — 심전도기 '하이톤 삐익'(sine 1046→980Hz, 살짝 떨어지는 고음) */
 function _beepS(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1046,t);o.frequency.exponentialRampToValueAtTime(980,t+0.13);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.4,t+0.005);g.gain.exponentialRampToValueAtTime(0.0006,t+0.13);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.16);}
+/* '따당' — 두 번 박동(따 높게 + 당 낮게, 짧고 또렷한 하이톤) */
+function _hit(t,f1,f2,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+0.085);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+0.004);g.gain.exponentialRampToValueAtTime(0.0006,t+0.085);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.11);}
+function beepDada(t){_hit(t,1100,1040,0.4);_hit(t+0.1,900,855,0.34);}
 function tagChime(){var ac=getAC(),t=ac.currentTime+0.02;_thumpS(t,86,0.6);_thumpS(t+0.17,66,0.48);var s=t+0.49;_toneS(s,1046,0.32,0.34);_toneS(s+0.12,1568,0.5,0.34);}
 function dahBeep(off){try{var ac=getAC();
   var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);
@@ -497,10 +500,10 @@ function dahBeep(off){try{var ac=getAC();
 /* 충전음 '비이잉~' — 순수 sine만(거친 배음 없음), 따뜻한 중저음역, lowpass로 엣지 제거 / 느린 어택·부드러운 감쇠 */
 function chargeSound(){try{var ac=getAC(),t=ac.currentTime;
   var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1300;lp.Q.value=0.25;
-  var g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.1,t+0.45);g.gain.linearRampToValueAtTime(.08,t+0.95);g.gain.exponentialRampToValueAtTime(.0001,t+1.28);
+  var g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.1,t+0.5);g.gain.linearRampToValueAtTime(.085,t+1.35);g.gain.exponentialRampToValueAtTime(.0001,t+1.66);
   lp.connect(g);g.connect(ac.destination);
-  var o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(262,t);o.frequency.exponentialRampToValueAtTime(523,t+1.0);o.connect(lp);o.start(t);o.stop(t+1.32);
-  var o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(175,t);o2.frequency.exponentialRampToValueAtTime(349,t+1.0);g2.gain.value=0.45;o2.connect(g2);g2.connect(lp);o2.start(t);o2.stop(t+1.32);
+  var o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(262,t);o.frequency.exponentialRampToValueAtTime(523,t+1.4);o.connect(lp);o.start(t);o.stop(t+1.7);
+  var o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(175,t);o2.frequency.exponentialRampToValueAtTime(349,t+1.4);g2.gain.value=0.45;o2.connect(g2);g2.connect(lp);o2.start(t);o2.stop(t+1.7);
 }catch(e){}}
 /* 번쩍 — 거친 충격음 대신 부드러운 sine 포인트음 (이후 잠깐의 여유) */
 function shockSound(){try{var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';var t=ac.currentTime;o.frequency.setValueAtTime(660,t);o.frequency.exponentialRampToValueAtTime(990,t+0.1);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.14,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.32);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.34);}catch(e){}}
@@ -529,14 +532,14 @@ function runDefib(){
       st.classList.remove('shock'); st.classList.add('revive');   /* 녹색 박동이 그려지며 소생 */
       dCap('');
       document.getElementById('tagTitle').textContent='박동이 새롭게 시작됐어요!';
-      (function(){var ac=getAC(),t=ac.currentTime+0.18;_beepS(t);_beepS(t+0.62);_beepS(t+1.18);})();   /* 그래픽이 실제 박동으로 변환되며 하이톤 삐익 심박 시작 */
+      (function(){var ac=getAC(),t=ac.currentTime+0.18;beepDada(t);beepDada(t+0.6);beepDada(t+1.2);})();   /* 그래픽이 실제 박동으로 변환되며 두 번 박동 '따당, 따당, 따당' */
       setTimeout(function(){
         st.className='tag-mon'; st.id='waveStage';
         finishTag();
         setTimeout(function(){document.getElementById('rewardModal').classList.add('show');},250);
       },1700);
     },620);
-  },1350);
+  },1750);
 }
 document.getElementById('simulateDefib').addEventListener('click',runDefib);
 /* 출석 심전도 — 이번 달, 닿은 날(ATT)마다 박동 / 빛이 박동을 따라 계속 흐름 */
