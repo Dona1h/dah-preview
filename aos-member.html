@@ -413,7 +413,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans
     <div class="defib-flash"></div>
     <svg class="tag-ecg" viewBox="0 0 300 90">
       <path class="dtrace" d="M0,55 H300"/>
-      <path class="t-shock" d="M0,55 H128 L138,55 L150,6 L162,84 L172,55 H300"/>
+      <path class="t-shock" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
       <path class="dlive" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
     </svg>
     <div class="defib-cap" id="defibCap"></div>
@@ -601,7 +601,7 @@ function updateEcgCap(){
 /* 박스 주변부 글로우 — 스윕이 박동을 지나는 순간 밝아짐 + (음소거 해제 시) 두둥 박동음 동기 재생 */
 var _ecgRaf=null,_heart=null,ecgMuted=true;
 /* 항상 '두둥'(lub-dub). dub 간격이 좁으면 드럼 더블, 넓으면 심박 리듬 */
-function ecgThump(dub){_tdit(getAC().currentTime+0.005);}   /* 한 박동 = 타이트한 '띠딧'(박동끼리는 스윕이 간격을 벌림) */
+function ecgThump(dub){var t=getAC().currentTime+0.005;_beepS(t);_beepS(t+0.16);}   /* 매우 낮음과 같은 삐익을 한 박동에 두 번(심장 lub-dub) */
 function setEcgGlow(maxGlow,isCele){
   if(_ecgRaf){cancelAnimationFrame(_ecgRaf);_ecgRaf=null;}
   if(_heart){clearInterval(_heart);_heart=null;}

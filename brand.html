@@ -129,7 +129,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;back
     <div class="bflash"></div>
     <svg viewBox="0 0 300 90">
       <path class="dtrace" d="M0,55 H300"/>
-      <path class="t-shock" d="M0,55 H128 L138,55 L150,6 L162,84 L172,55 H300"/>
+      <path class="t-shock" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
       <path class="dlive" d="M0,55 H120 L132,55 L144,18 L156,82 L168,55 L180,55 H300"/>
     </svg>
     <div class="bcap" id="bCap"></div>
@@ -249,7 +249,7 @@ function bPlayEcg(beats,period,mode){if(bEcgBusy)return;bEcgBusy=true;getAC();
   var sw=document.getElementById('bSweep');if(sw){sw.classList.remove('run');void sw.getBBox();sw.style.setProperty('--dur',period+'s');sw.classList.add('run');}
   var ac=getAC(),t0=ac.currentTime+0.05,W=480;
   beats.forEach(function(bt,i){var dt=(bt.x/W)*period;
-    if(mode==='mon'){_tdit(t0+dt);} else { var rr=bt.n>1?bt.k/(bt.n-1):0; if(bt.type==='da'){_rev(t0+dt,140+260*rr,0.22+0.2*rr);} else _dahBurst(t0+dt); }
+    if(mode==='mon'){_beepS(t0+dt);_beepS(t0+dt+0.16);} else { var rr=bt.n>1?bt.k/(bt.n-1):0; if(bt.type==='da'){_rev(t0+dt,140+260*rr,0.22+0.2*rr);} else _dahBurst(t0+dt); }
     setTimeout(function(){var s=document.getElementById('bspk'+i);if(s){s.classList.add(bt.type==='da'?'litd':'lit');setTimeout(function(){s.classList.remove('lit');s.classList.remove('litd');},240);}},Math.max(0,dt*1000));});
   document.getElementById('bEcgMsg').textContent=(mode==='mon')?'심전도기 — 박동마다 하이톤 삐익':'따발총 — 드다당~ 드다다당~ 드다당~ 드다다당~';
   setTimeout(function(){bEcgBusy=false;},period*1000+300);}
