@@ -622,7 +622,7 @@ function setEcgGlow(maxGlow,isCele){
     _ecgRaf=requestAnimationFrame(ctick);
     return;
   }
-  var W=480,seg=W/TOTAL,period=6500,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
+  var W=480,seg=W/TOTAL,period=9000,beatX=ATT.map(function(d){return (d-1)*seg+seg*0.44;});
   var dub=Math.min(0.16,Math.max(0.06,(period/1000/ATT.length)*0.38));   /* 밀도↑→좁은 더블, 밀도↓→심박 리듬 */
   var start=performance.now(),prevL=0,cur=document.getElementById('hcur');
   function tick(now){
