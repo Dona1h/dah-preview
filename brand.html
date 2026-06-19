@@ -225,7 +225,12 @@ document.getElementById('bTagFirst').addEventListener('click',bFirstTag);
 function _beepS(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1046,t);o.frequency.exponentialRampToValueAtTime(980,t+0.13);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.4,t+0.005);g.gain.exponentialRampToValueAtTime(0.0006,t+0.13);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.16);}
 function _beepSh(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1046,t);o.frequency.exponentialRampToValueAtTime(992,t+0.07);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.38,t+0.004);g.gain.exponentialRampToValueAtTime(0.0006,t+0.07);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.09);}
 function _tick(t,peak){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(1360,t+0.03);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak||0.3,t+0.002);g.gain.exponentialRampToValueAtTime(0.0006,t+0.026);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.04);}
-function _dahBurst(t){var ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(1046,t);o.frequency.exponentialRampToValueAtTime(1300,t+0.07);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.5,t+0.005);g.gain.exponentialRampToValueAtTime(0.0006,t+0.2);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.22);_thumpS(t,160,0.36);}
+function _dahBurst(t){var ac=getAC();
+  var o=ac.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(116,t+0.42);
+  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(780,t);lp.frequency.exponentialRampToValueAtTime(330,t+0.42);lp.Q.value=6;
+  var g=ac.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.5,t+0.012);g.gain.setValueAtTime(0.46,t+0.14);g.gain.exponentialRampToValueAtTime(0.0006,t+0.5);
+  o.connect(lp);lp.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.52);
+  var os=ac.createOscillator();os.type='sine';os.frequency.setValueAtTime(76,t);os.frequency.exponentialRampToValueAtTime(60,t+0.42);var gs=ac.createGain();gs.gain.setValueAtTime(0.0001,t);gs.gain.linearRampToValueAtTime(0.42,t+0.012);gs.gain.exponentialRampToValueAtTime(0.0006,t+0.5);os.connect(gs);gs.connect(ac.destination);os.start(t);os.stop(t+0.52);}
 /* 할리 엔진 펄스 — 사각파+로우패스(걸쭉한 rasp) + 저음 sub, 음정·볼륨 상승으로 rev */
 function _rev(t,freq,peak){var ac=getAC();
   var o=ac.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*0.82,t+0.05);
@@ -245,10 +250,10 @@ function bPlayEcg(beats,period,mode){if(bEcgBusy)return;bEcgBusy=true;getAC();
   beats.forEach(function(bt,i){var dt=(bt.x/W)*period;
     if(mode==='mon'){_beepSh(t0+dt);_beepSh(t0+dt+0.14);} else { var rr=bt.n>1?bt.k/(bt.n-1):0; if(bt.type==='da'){_rev(t0+dt,140+260*rr,0.22+0.2*rr);} else _dahBurst(t0+dt); }
     setTimeout(function(){var s=document.getElementById('bspk'+i);if(s){s.classList.add(bt.type==='da'?'litd':'lit');setTimeout(function(){s.classList.remove('lit');s.classList.remove('litd');},240);}},Math.max(0,dt*1000));});
-  document.getElementById('bEcgMsg').textContent=(mode==='mon')?'심전도기 — 박동마다 하이톤 삐익':'따발총 — 드다닿! 드다다닿! 드다닿! 드다다닿!';
+  document.getElementById('bEcgMsg').textContent=(mode==='mon')?'심전도기 — 박동마다 하이톤 삐익':'따발총 — 드다당~ 드다다당~ 드다당~ 드다다당~';
   setTimeout(function(){bEcgBusy=false;},period*1000+300);}
 var ECG_MON=[],i;for(i=0;i<10;i++)ECG_MON.push({x:30+i*46,type:'beep'});
-var ECG_GUN=[],runs=[3,4,3,4],gx=26;runs.forEach(function(n){for(var j=0;j<n;j++){ECG_GUN.push({x:gx,type:(j===n-1)?'dah':'da',k:j,n:n});gx+=15;}gx+=40;});
+var ECG_GUN=[],runs=[3,4,3,4],gx=26;runs.forEach(function(n){for(var j=0;j<n;j++){ECG_GUN.push({x:gx,type:(j===n-1)?'dah':'da',k:j,n:n});gx+=15;}gx+=55;});
 document.getElementById('bEcgMon').addEventListener('click',function(){bBuildEcg(ECG_MON);bPlayEcg(ECG_MON,3.5,'mon');});
 document.getElementById('bEcgGun').addEventListener('click',function(){bBuildEcg(ECG_GUN);bPlayEcg(ECG_GUN,2.0,'gun');});
 bBuildEcg(ECG_MON);
