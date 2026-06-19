@@ -254,7 +254,7 @@ function bPlayEcg(beats,period,mode){if(bEcgBusy)return;bEcgBusy=true;getAC();
   setTimeout(function(){bEcgBusy=false;},period*1000+300);}
 var ECG_MON=[],i;for(i=0;i<10;i++)ECG_MON.push({x:30+i*46,type:'beep'});
 var ECG_GUN=[],runs=[3,4,3,4],gx=26;runs.forEach(function(n){for(var j=0;j<n;j++){ECG_GUN.push({x:gx,type:(j===n-1)?'dah':'da',k:j,n:n});gx+=15;}gx+=55;});
-document.getElementById('bEcgMon').addEventListener('click',function(){bBuildEcg(ECG_MON);bPlayEcg(ECG_MON,3.5,'mon');});
+document.getElementById('bEcgMon').addEventListener('click',function(){bBuildEcg(ECG_MON);bPlayEcg(ECG_MON,5.0,'mon');});
 document.getElementById('bEcgGun').addEventListener('click',function(){bBuildEcg(ECG_GUN);bPlayEcg(ECG_GUN,2.0,'gun');});
 bBuildEcg(ECG_MON);
 </script>
