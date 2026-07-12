@@ -157,6 +157,7 @@
   <a class="c-haru" href="#haru">③ 하루콩</a>
   <a class="c-se" href="#se">④ 1 Second Everyday</a>
   <a class="c-dah" href="#dah">⑤ 종합 — 닿의 자리</a>
+  <a class="c-dah" href="#verify">⑥ 물리 인증 레퍼런스</a>
 </nav>
 
 <!-- ================= FINCH ================= -->
@@ -556,7 +557,57 @@
   </div>
 </section>
 
+<!-- ================= VERIFY ================= -->
+<section class="synth" id="verify">
+  <div class="synth-head">
+    <p class="eyebrow">부록 · 2026.07.12 추가</p>
+    <h2>물리 인증 레퍼런스 — <em>"거기 닿았다"</em>를 확인하는 법</h2>
+  </div>
+  <p style="max-width:66ch">방문 자체를 기록의 단위로 삼는 서비스들이 "실제로 그 장소에 있었음"을 확인하는 방식 조사. 원형은 parkrun(바코드)과 블랙야크 알파인클럽(GPS 발도장)이며, 확인 방식은 5계열로 정리됩니다.</p>
+
+  <h3>방문·접촉 기반 사례</h3>
+  <div class="grid2">
+    <div class="card"><h4 style="color:var(--dah)">parkrun — 바코드 · 사람</h4><p>매주 공원 5km. 결승선에서 자원봉사자가 개인 바코드+순위 토큰을 물리 스캔("No barcode, no time, no exception"). 기록이 아니라 <b>출석 횟수</b>가 명예의 단위(50·100·250회 클럽). 슬로건 "It's a run, not a race" — 닿 철학의 20년 오프라인 증명.</p></div>
+    <div class="card"><h4 style="color:var(--dah)">블랙야크 BAC — GPS+사진 (50만 회원)</h4><p>100대 명산 도장깨기. ① 정상 반경 50~100m에서 GPS <b>'발도장'</b> 선인증 → ② 48~72시간 내 사진 등록 → ③ 운영자 승인. GPS를 관문에 둬 과거 사진·도용·다회 인증 위조를 차단.</p></div>
+    <div class="card"><h4 style="color:var(--dah)">Apple GymKit — NFC 터치</h4><p>워치를 러닝머신 리더에 몇 cm 갖다 대면 톡— 페어링, 데이터 양방향 동기화. 전 세계 1,500+ 시설·5만+ 장비. <b>터치 한 번이 "이 장소의 이 기구" 증명</b>이 되는 구조.</p></div>
+    <div class="card"><h4 style="color:var(--dah)">Mariana Tek — 지오펜스 자동</h4><p>부티크 스튜디오 B2B. 회원이 문을 통과하면 위치 기반으로 체크인 유도/자동 처리 — 프런트데스크 없는 운영. 예약→출석→히스토리가 한 줄.</p></div>
+    <div class="card"><h4 style="color:var(--dah)">Foursquare Swarm — GPS 라이프로그</h4><p>체크인 문화의 원조. 방문의 역사가 시간순 라이프로그로 쌓이고 스트릭·마일스톤 축하. 검증은 느슨(위조 차단보다 재미 우선).</p></div>
+    <div class="card"><h4 style="color:var(--dah)">챌린저스 — 사진+돈</h4><p>인증샷+상금 몰수 구조(달성률 85% 미만 시 차감). 앱 내 카메라·시간 제한으로 위조 방지. 단 "돈+압박" 모델이라 닿 철학과 반대 극 — 인증 UX만 참고.</p></div>
+  </div>
+
+  <h3>확인 방식 5계열 비교</h3>
+  <table class="tl">
+    <tr><td>NFC/RFID</td><td><b>GymKit, 회원카드, 스탬프투어</b> — 터치=사실(위조 매우 어려움), 오프라인 동작, "닿는" 행위 그 자체 / 태그·리더 설치 필요</td></tr>
+    <tr><td>QR/바코드</td><td><b>parkrun, 헬스장 프런트, Wellhub</b> — 최저 비용, 종이도 가능 / 정적 QR은 스크린샷 위조 가능 → 동적(시간제한) QR로 보완</td></tr>
+    <tr><td>GPS/지오펜스</td><td><b>BAC(반경 50~100m), Swarm, Mariana Tek</b> — 무인·자동, 하드웨어 불요 / 실내 정확도 저하·스푸핑·배터리</td></tr>
+    <tr><td>사진 인증</td><td><b>챌린저스, BAC 2단계, GymRats</b> — 정성 기록이 함께 남음 / 과거 사진·도용 → 앱 내 카메라+시간 제한으로 차단</td></tr>
+    <tr><td>사람/키오스크</td><td><b>parkrun 자원봉사자, Wodify, 출석 태블릿</b> — 인증이 곧 관계(인사), 위조 불가 / 운영 인력 필요</td></tr>
+  </table>
+  <p style="max-width:66ch">검증 강도가 필요할수록 단일 방식이 아니라 <b>결합</b>을 씁니다. BAC가 교과서: GPS(장소 사실)를 필수 관문으로, 사진(정성 기록)을 후속으로, 시간 제한을 접착제로.</p>
+
+  <h3>구조도면 — 닿 권장 인증 스택</h3>
+  <div class="dah-map">
+    <p class="bp-title mono">닿 · PRESENCE VERIFICATION STACK (권장 조합)</p>
+    <div class="dmrow">
+      <div class="dm-axis">기본<small>필수 관문</small></div>
+      <div class="dm-cell"><b style="color:var(--dah)">NFC 태그 터치</b>입구의 닿 태그에 폰을 대면 그날의 기둥이 열림 — "탭"이 곧 "닿음", 브랜드 이름과 물리 동작의 완전 일치 (GymKit 패턴, 비용은 스티커 수준)</div>
+    </div>
+    <div class="dmrow">
+      <div class="dm-axis">보조<small>놓친 닿음 줍기</small></div>
+      <div class="dm-cell"><b style="color:var(--dah)">지오펜스 자동 감지</b>태그를 안 찍고 지나쳐도 "오늘 오셨네요, 닿음으로 남길까요?" 푸시 (Mariana Tek 패턴 — 1SE Smart Fill과 같은 관용 장치)</div>
+    </div>
+    <div class="dmrow">
+      <div class="dm-axis">정성층<small>전부 선택</small></div>
+      <div class="dm-cell"><b style="color:var(--dah)">사진 · 감각 한 줄</b>BAC처럼 장소 인증을 관문으로, 그날의 한 줄을 후속으로 — 단 목적은 위조 방지가 아니라 기록의 풍부함이므로 검수 없음</div>
+    </div>
+    <div class="dmrow">
+      <div class="dm-axis">사람 층<small>이미 있음</small></div>
+      <div class="dm-cell"><b style="color:var(--dah)">강사 · 데스크의 인사</b>parkrun 자원봉사자 스캔이 주는 "인사받으며 도착이 확인되는" 경험 — 순수 디지털 앱들이 흉내 못 내는 닿의 고유 층</div>
+    </div>
+  </div>
+</section>
+
 <footer>
-  <b>출처</b> — Apple Developer(Behind the Design), Apple Newsroom(ADA 2024), Sketch Blog, Gentler Stories 공식 문서, Sparrow Apps(Finch ARR 분석), Finch 공식·Fandom Wiki, Platum·벤처스퀘어·이코노미조선·테크42(하루콩/블루시그넘), TED·Kickstarter·1SE Help Center, Sensor Tower 추정치. 스크린샷은 각 앱의 App Store 공식 마케팅 이미지(2026-07-12 기준). 상세 전문: 닿!/자료/경쟁앱_완전분해_2026-07-12.md
+  <b>출처</b> — Apple Developer(Behind the Design), Apple Newsroom(ADA 2024), Sketch Blog, Gentler Stories 공식 문서, Sparrow Apps(Finch ARR 분석), Finch 공식·Fandom Wiki, Platum·벤처스퀘어·이코노미조선·테크42(하루콩/블루시그넘), TED·Kickstarter·1SE Help Center, Sensor Tower 추정치. 부록⑥: parkrun Support/Volunteer Hub, BAC 공식(bac.blackyak.com)·MTN, Apple Support(GymKit)·Wareable·NFCW, Mariana Tek 공식 블로그, Foursquare Swarm(Wikipedia), 나무위키(챌린저스). 스크린샷은 각 앱의 App Store 공식 마케팅 이미지(2026-07-12 기준). 상세 전문: 닿!/자료/경쟁앱_완전분해_2026-07-12.md
 </footer>
 </div>
